@@ -1,0 +1,25 @@
+# backend/src/main/resources/application.yml (desarrollo local)
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5433/tfgdb
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate.format_sql: true
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+app:
+  security:
+    jwtSecret: "change-this-secret"
+    jwtExpirationMinutes: 240
+  cloudinary:
+    cloudName: "${CLOUDINARY_CLOUD_NAME:}"
+    apiKey: "${CLOUDINARY_API_KEY:}"
+    apiSecret: "${CLOUDINARY_API_SECRET:}"
