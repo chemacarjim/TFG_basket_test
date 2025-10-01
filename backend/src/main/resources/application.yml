@@ -1,7 +1,7 @@
 # backend/src/main/resources/application.yml (desarrollo local)
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/tfgdb
+    url: jdbc:postgresql://localhost:5432/tfgdb
     username: postgres
     password: postgres
   jpa:
