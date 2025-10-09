@@ -15,3 +15,12 @@ cd backend
 cd frontend
 npm install
 npm run dev
+
+
+### Conexion con db
+Name: Local Postgres
+Host name/addres: db
+Port: 5432
+Maintenance database: tfgdb
+Username: postgres
+Password: postgres
