@@ -1,25 +1,31 @@
-# backend/src/main/resources/application.yml (desarrollo local)
+server:
+  port: 8080
+
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/tfgdb
     username: postgres
     password: postgres
+
   jpa:
     hibernate:
       ddl-auto: validate
     properties:
-      hibernate.format_sql: true
+      hibernate:
+        jdbc:
+          time_zone: UTC
+    open-in-view: false
+
   flyway:
     enabled: true
-
-server:
-  port: 8080
+    locations: classpath:db/migration
 
 app:
-  security:
-    jwtSecret: "change-this-secret"
-    jwtExpirationMinutes: 240
+  jwt:
+    secret: ${JWT_SECRET:dev-secret-please-change-32bytes-min-length-2025-OK}
+    expiration-minutes: 240
   cloudinary:
-    cloudName: "${CLOUDINARY_CLOUD_NAME:}"
-    apiKey: "${CLOUDINARY_API_KEY:}"
-    apiSecret: "${CLOUDINARY_API_SECRET:}"
+    cloud-name: ${CLOUDINARY_CLOUD_NAME:}
+    api-key: ${CLOUDINARY_API_KEY:}
+    api-secret: ${CLOUDINARY_API_SECRET:}
+
