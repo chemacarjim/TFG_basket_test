@@ -1,5 +1,4 @@
 import { api } from './client'
-import type { TestSummary } from '../types/api'
 
 export async function adminLogin(email: string, password: string): Promise<string> {
   const { data } = await api.post('/admin/auth/login', { email, password })
@@ -49,4 +48,13 @@ export async function adminUploadImage(file: File): Promise<string> {
   form.append('file', file)
   const { data } = await api.post('/admin/assets/upload', form, { headers: { 'Content-Type': 'multipart/form-data' } })
   return data // url
+}
+
+export async function adminListSessions(testId:number, limit:number, offset:number) {
+  const { data } = await api.get(`/admin/tests/${testId}/sessions`, { params: { limit, offset } })
+  return data as {
+    items: Array<{id:number; name:string; surname:string; finishedAt:string|null; score:number; total:number}>,
+    nextOffset: number,
+    hasMore: boolean
+  }
 }

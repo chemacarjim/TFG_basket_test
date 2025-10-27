@@ -6,21 +6,34 @@ export async function listActiveTests(): Promise<TestSummary[]> {
   return data
 }
 
-export async function getTestDetail(id: number): Promise<TestDetail> {
+export async function getTestDetail(id: number) {
   const { data } = await api.get(`/tests/${id}`)
   return data
 }
 
-export async function createSession(testId: number, anonUserCode?: string): Promise<number> {
-  const { data } = await api.post<CreateSessionResponse>(`/tests/${testId}/sessions`, { anonUserCode })
-  return data.sessionId
+export async function createSession(testId: number, payload: {
+  name: string;
+  surname: string;
+  birthDate?: string;
+  country?: string;
+  gender?: string;
+  dominantHand?: string;
+  position?: string;
+  inasidnr?: string;
+  event?: string;
+  instructor?: string;
+  anonUserCode?: string;
+}) {
+  const { data } = await api.post(`/tests/${testId}/sessions`, payload)
+  return data
 }
 
-export async function submitResponses(sessionId: number, items: Array<{questionId:number; selectedValue:'DRIBBLE'|'PASS'|'SHOOT'; responseTimeMs:number}>): Promise<void> {
-  await api.post(`/sessions/${sessionId}/responses`, { items })
+export async function submitResponses(sessionId: number, body: any) {
+  const { data } = await api.post(`/sessions/${sessionId}/responses`, body)
+  return data
 }
 
-export async function finishSession(sessionId: number): Promise<{score:number; total:number; durationMs:number|null}> {
+export async function finishSession(sessionId: number) {
   const { data } = await api.post(`/sessions/${sessionId}/finish`)
   return data
 }

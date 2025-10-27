@@ -16,4 +16,7 @@ public interface AdminContentService {
     QuestionAdminDto createQuestion(Long testId, QuestionUpsertDto dto);
     QuestionAdminDto updateQuestion(Long questionId, QuestionUpsertDto dto);
     void deleteQuestion(Long questionId);
+
+    // Sessions
+    AdminSessionListDto listFinishedSessions(Long testId, int limit, int offset);
 }

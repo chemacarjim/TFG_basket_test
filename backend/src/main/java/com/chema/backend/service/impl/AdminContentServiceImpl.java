@@ -3,12 +3,15 @@ package com.chema.backend.service.impl;
 import com.chema.backend.domain.entity.*;
 import com.chema.backend.dto.admin.*;
 import com.chema.backend.exception.NotFoundException;
+import com.chema.backend.repository.TestSessionRepository;
 import com.chema.backend.repository.*;
 import com.chema.backend.service.AdminContentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
@@ -19,6 +22,7 @@ public class AdminContentServiceImpl implements AdminContentService {
     private final TestRepository testRepo;
     private final QuestionRepository questionRepo;
     private final AdminUserRepository adminRepo;
+    private final TestSessionRepository sessionRepo;
 
     @Override
     public List<TestAdminDto> listTests() {
@@ -107,5 +111,23 @@ public class AdminContentServiceImpl implements AdminContentService {
         if (!questionRepo.existsById(questionId))
             throw new NotFoundException("QUESTION_NOT_FOUND", "No existe pregunta id=" + questionId);
         questionRepo.deleteById(questionId);
+    }
+
+    @Override
+    public AdminSessionListDto listFinishedSessions(Long testId, int limit, int offset) {
+        var list = sessionRepo.findFinishedByTestIdPaged(testId, limit, offset);
+        var items = list.stream().map(s ->
+            new AdminSessionItemDto(
+                s.getId(),
+                s.getParticipantName(),
+                s.getParticipantSurname(),
+                s.getFinishedAt() != null ? s.getFinishedAt().toString() : null,
+                s.getScore(),
+                s.getTotal()
+            )
+        ).toList();
+
+        boolean hasMore = items.size() == limit;
+        return new AdminSessionListDto(items, offset + items.size(), hasMore);
     }
 }

@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -36,12 +35,10 @@ public class PublicTestController {
     @PostMapping("/tests/{id}/sessions")
     public ResponseEntity<CreateSessionResponseDto> createSession(
             @PathVariable Long id,
-            @RequestBody(required = false) CreateSessionRequestDto body
+            @RequestBody CreateSessionRequestDto req
     ) {
-        String anon = body == null ? null : body.anonUserCode();
-        var res = sessionService.createSession(id, anon);
-        return ResponseEntity.created(URI.create("/api/v1/sessions/" + res.sessionId()))
-                .body(res);
+        var res = sessionService.createSession(id, req);
+        return ResponseEntity.ok(res);
     }
 
     // 4) Enviar lote de respuestas

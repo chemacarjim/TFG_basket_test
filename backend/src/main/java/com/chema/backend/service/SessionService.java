@@ -1,11 +1,12 @@
 package com.chema.backend.service;
 
 import com.chema.backend.dto.CreateSessionResponseDto;
+import com.chema.backend.dto.CreateSessionRequestDto;
 import com.chema.backend.dto.FinishSessionResponseDto;
 import com.chema.backend.dto.SubmitResponsesRequestDto;
 
 public interface SessionService {
-    CreateSessionResponseDto createSession(Long testId, String anonUserCode);
+    CreateSessionResponseDto createSession(Long testId, CreateSessionRequestDto req);
     void submitResponses(Long sessionId, SubmitResponsesRequestDto request);
     FinishSessionResponseDto finishSession(Long sessionId);
 }

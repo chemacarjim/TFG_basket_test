@@ -4,6 +4,7 @@ import com.chema.backend.domain.entity.Question;
 import com.chema.backend.domain.entity.ResponseEntity;
 import com.chema.backend.domain.entity.TestEntity;
 import com.chema.backend.domain.entity.TestSession;
+import com.chema.backend.dto.CreateSessionRequestDto;
 import com.chema.backend.dto.CreateSessionResponseDto;
 import com.chema.backend.dto.FinishSessionResponseDto;
 import com.chema.backend.dto.SubmitResponsesRequestDto;
@@ -18,7 +19,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,18 +36,39 @@ public class SessionServiceImpl implements SessionService {
 
     @Override
     @Transactional
-    public CreateSessionResponseDto createSession(Long testId, String anonUserCode) {
+    public CreateSessionResponseDto createSession(Long testId, CreateSessionRequestDto req) {
         TestEntity test = testRepository.findById(testId)
                 .orElseThrow(() -> new NotFoundException("TEST_NOT_FOUND", "No existe el test con id=" + testId));
 
-        TestSession s = TestSession.builder()
+        if (req.name() == null || req.surname() == null || req.name().isBlank() || req.surname().isBlank()) {
+            throw new BadRequestException("VALIDATION_ERROR", "Existen datos obligatorios que faltan.");
+        }
+
+        TestSession s = sessionRepository.save(TestSession.builder()
                 .test(test)
-                .anonUserCode(anonUserCode)
-                .startedAt(OffsetDateTime.now())
-                .build();
+                .participantName(req.name().trim())
+                .participantSurname(req.surname().trim())
+                .participantBirthDate(parseBirthDate(req.birthDate()))
+                .participantCountry(emptyToNull(req.country()))
+                .participantGender(emptyToNull(req.gender()))
+                .participantDominantHand(emptyToNull(req.dominantHand()))
+                .participantPosition(emptyToNull(req.position()))
+                .participantInasidnr(emptyToNull(req.inasidnr()))
+                .participantEvent(emptyToNull(req.event()))
+                .participantInstructor(emptyToNull(req.instructor()))
+                .build());
 
         s = sessionRepository.save(s);
         return new CreateSessionResponseDto(s.getId());
+    }
+
+    private static LocalDate parseBirthDate(String s) {
+        if (s == null || s.isBlank()) return null;
+        return LocalDate.parse(s, DateTimeFormatter.ISO_LOCAL_DATE);
+    }
+
+    private static String emptyToNull(String s) {
+        return s == null || s.isBlank() ? null : s.trim();
     }
 
     @Override

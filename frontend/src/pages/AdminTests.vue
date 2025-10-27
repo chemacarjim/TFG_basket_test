@@ -126,6 +126,7 @@ async function onUpload(e: Event) {
               <button class="px-3 py-1 rounded shadow" @click="toggleActive(t)">{{ t.isActive ? 'Desactivar' : 'Activar' }}</button>
               <button class="px-3 py-1 rounded shadow" @click="selectTest(t.id)">Preguntas</button>
               <button class="px-3 py-1 rounded shadow" @click="removeTest(t)">Borrar</button>
+              <button class="px-3 py-1 rounded shadow" @click="$router.push(`/admin/tests/${t.id}/sessions`)">Sesiones</button>
             </div>
           </div>
         </div>
