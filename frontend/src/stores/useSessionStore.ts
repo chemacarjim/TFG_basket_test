@@ -11,8 +11,9 @@ export const useSessionStore = defineStore('session', {
     startedAt: null as number | null, // ms epoch
   }),
   actions: {
-    async start(testId: number, anonUserCode?: string) {
-      this.sessionId = await createSession(testId, anonUserCode)
+    async start(testId: number, payload: any) {
+      const res = await createSession(testId, payload)
+      this.sessionId = res.sessionId
       this.responses = []
       this.startedAt = Date.now()
     },
@@ -21,7 +22,7 @@ export const useSessionStore = defineStore('session', {
     },
     async flushBatch() {
       if (!this.sessionId || this.responses.length === 0) return
-      await submitResponses(this.sessionId, this.responses)
+      await submitResponses(this.sessionId, { items: this.responses })
       this.responses = []
     },
     async finish() {

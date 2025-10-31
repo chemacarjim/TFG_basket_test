@@ -11,7 +11,7 @@ const tests = ref<Array<{id:number; title:string; description:string|null; isAct
 const form = ref({ title:'', description:'', isActive:false })
 const selectedTestId = ref<number|null>(null)
 const questions = ref<any[]>([])
-const qform = ref({ prompt:'', possessionTime:0, imageUrl:'', orderIndex:0 })
+const qform = ref({ prompt:'', possessionTime:0, imageUrl:''})
 const uploading = ref(false)
 
 onMounted(async () => {
@@ -64,7 +64,7 @@ async function selectTest(id:number) {
 async function createQuestion() {
   if (!selectedTestId.value) return
   await adminCreateQuestion(selectedTestId.value, { ...qform.value })
-  qform.value = { prompt:'', possessionTime:0, imageUrl:'', orderIndex:0 }
+  qform.value = { prompt:'', possessionTime:0, imageUrl:''}
   await selectTest(selectedTestId.value)
 }
 
@@ -142,7 +142,6 @@ async function onUpload(e: Event) {
             <input v-model="qform.prompt" placeholder="Enunciado" class="w-full p-2 rounded border" />
             <input v-model.number="qform.possessionTime" type="number" placeholder="Posession time (ms)" class="w-full p-2 rounded border" />
             <div class="flex items-center gap-3">
-              <input v-model.number="qform.orderIndex" type="number" placeholder="Orden" class="p-2 rounded border w-32" />
               <input type="file" accept="image/*" @change="onUpload" />
               <span v-if="uploading" class="text-sm text-gray-500">Subiendo…</span>
             </div>

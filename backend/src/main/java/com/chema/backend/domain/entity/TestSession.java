@@ -51,9 +51,6 @@ public class TestSession {
     @JoinColumn(name = "test_id", nullable = false)
     private TestEntity test;
 
-    @Column(name = "anon_user_code")
-    private String anonUserCode;
-
     @CreationTimestamp
     @Column(name = "started_at", nullable = false, updatable = false)
     private OffsetDateTime startedAt;

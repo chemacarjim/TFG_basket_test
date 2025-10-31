@@ -22,7 +22,6 @@ export async function createSession(testId: number, payload: {
   inasidnr?: string;
   event?: string;
   instructor?: string;
-  anonUserCode?: string;
 }) {
   const { data } = await api.post(`/tests/${testId}/sessions`, payload)
   return data

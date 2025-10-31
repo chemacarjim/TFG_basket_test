@@ -5,3 +5,5 @@ export interface CreateSessionResponse { sessionId: number }
 export interface FinishSessionResponse { score: number; total: number; durationMs: number | null }
 
 export type ChoiceValue = 'DRIBBLE' | 'PASS' | 'SHOOT'
+
+export const choiceValues: ChoiceValue[] = ['DRIBBLE', 'PASS', 'SHOOT']

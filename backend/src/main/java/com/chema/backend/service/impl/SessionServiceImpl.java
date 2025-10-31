@@ -122,7 +122,7 @@ public class SessionServiceImpl implements SessionService {
 
         var responses = responseRepository.findBySession(s);
         int total = responses.size();
-        int score = 0;   // MVP: cálculo real vendrá después
+        int score = 0;
 
         s.setTotal(total);
         if (s.getStartedAt() != null) {
@@ -132,8 +132,9 @@ public class SessionServiceImpl implements SessionService {
             s.setDurationMs(null);
         }
         s.setScore(score);
-
         sessionRepository.save(s);
-        return new FinishSessionResponseDto(score, total, s.getDurationMs());
+
+        String finishedAt = now.toString();
+        return new FinishSessionResponseDto(score, total, s.getDurationMs(), finishedAt);
     }
 }
