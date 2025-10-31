@@ -5,6 +5,5 @@ public record QuestionAdminDto(
         Long testId,
         String prompt,
         Integer possessionTime,
-        String imageUrl,
-        Integer orderIndex
+        String imageUrl
 ) { }

@@ -69,8 +69,8 @@ public class AdminContentServiceImpl implements AdminContentService {
     public List<QuestionAdminDto> listQuestions(Long testId) {
         TestEntity t = testRepo.findById(testId)
                 .orElseThrow(() -> new NotFoundException("TEST_NOT_FOUND", "No existe test id=" + testId));
-        return questionRepo.findByTestOrderByOrderIndexAsc(t).stream()
-                .map(q -> new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl(), q.getOrderIndex()))
+        return questionRepo.findByTestOrderByIsActiveAsc(t).stream()
+                .map(q -> new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl()))
                 .toList();
     }
 
@@ -84,10 +84,9 @@ public class AdminContentServiceImpl implements AdminContentService {
                 .prompt(dto.prompt())
                 .possessionTime(dto.possessionTime())
                 .imageUrl(dto.imageUrl())
-                .orderIndex(dto.orderIndex() != null ? dto.orderIndex() : 0)
                 .build();
         q = questionRepo.save(q);
-        return new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl(), q.getOrderIndex());
+        return new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl());
     }
 
     @Override
@@ -98,9 +97,8 @@ public class AdminContentServiceImpl implements AdminContentService {
         if (dto.prompt() != null) q.setPrompt(dto.prompt());
         if (dto.possessionTime() != null) q.setPossessionTime(dto.possessionTime());
         if (dto.imageUrl() != null) q.setImageUrl(dto.imageUrl());
-        if (dto.orderIndex() != null) q.setOrderIndex(dto.orderIndex());
         q = questionRepo.save(q);
-        return new QuestionAdminDto(q.getId(), q.getTest().getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl(), q.getOrderIndex());
+        return new QuestionAdminDto(q.getId(), q.getTest().getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl());
     }
 
     @Override

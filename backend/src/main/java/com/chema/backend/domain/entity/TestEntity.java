@@ -40,6 +40,5 @@ public class TestEntity {
 
     // Relación de conveniencia (no obligatoria). No cascades de borrado aquí; lo hace la DB.
     @OneToMany(mappedBy = "test", fetch = FetchType.LAZY)
-    @OrderBy("orderIndex ASC")
     private List<Question> questions;
 }

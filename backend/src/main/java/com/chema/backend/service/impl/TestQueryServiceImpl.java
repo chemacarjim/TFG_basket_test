@@ -11,7 +11,6 @@ import com.chema.backend.service.TestQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -34,9 +33,8 @@ public class TestQueryServiceImpl implements TestQueryService {
         TestEntity test = testRepository.findById(testId)
                 .orElseThrow(() -> new NotFoundException("TEST_NOT_FOUND", "No existe el test con id=" + testId));
 
-        var questions = questionRepository.findByTestOrderByOrderIndexAsc(test)
+        var questions = questionRepository.findByTestOrderByIsActiveAsc(test)
                 .stream()
-                .sorted(Comparator.comparingInt(q -> q.getOrderIndex() == null ? 0 : q.getOrderIndex()))
                 .toList();
 
         return TestMapper.toDetail(test, questions);

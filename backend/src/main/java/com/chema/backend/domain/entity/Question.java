@@ -25,8 +25,4 @@ public class Question {
 
     @Column(name = "image_url")
     private String imageUrl;
-
-    @Builder.Default
-    @Column(name = "order_index", nullable = false)
-    private Integer orderIndex = 0;
 }

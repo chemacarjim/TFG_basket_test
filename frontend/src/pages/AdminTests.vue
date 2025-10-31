@@ -11,7 +11,7 @@ const tests = ref<Array<{id:number; title:string; description:string|null; isAct
 const form = ref({ title:'', description:'', isActive:false })
 const selectedTestId = ref<number|null>(null)
 const questions = ref<any[]>([])
-const qform = ref({ prompt:'', possessionTime:0, imageUrl:''})
+const qform = ref({ prompt:'', possessionTime:0, imageUrl:'' })
 const uploading = ref(false)
 
 onMounted(async () => {
@@ -64,7 +64,7 @@ async function selectTest(id:number) {
 async function createQuestion() {
   if (!selectedTestId.value) return
   await adminCreateQuestion(selectedTestId.value, { ...qform.value })
-  qform.value = { prompt:'', possessionTime:0, imageUrl:''}
+  qform.value = { prompt:'', possessionTime:0, imageUrl:'' }
   await selectTest(selectedTestId.value)
 }
 
@@ -153,11 +153,10 @@ async function onUpload(e: Event) {
             <div v-for="q in questions" :key="q.id" class="p-3 bg-white rounded-xl shadow">
               <div class="font-medium">{{ q.prompt }}</div>
               <div class="text-sm text-gray-600">
-                Tiempo: {{ q.possessionTime ?? '—' }} ms · Orden: {{ q.orderIndex }}
+                Tiempo: {{ q.possessionTime ?? '—' }} ms
               </div>
               <img v-if="q.imageUrl" :src="q.imageUrl" class="max-h-40 mt-2 rounded" />
               <div class="flex gap-2 mt-2">
-                <button class="px-3 py-1 rounded shadow" @click="updateQuestion(q, { orderIndex: q.orderIndex + 1 })">Orden +1</button>
                 <button class="px-3 py-1 rounded shadow" @click="removeQuestion(q)">Borrar</button>
               </div>
             </div>

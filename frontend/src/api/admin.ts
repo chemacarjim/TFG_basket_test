@@ -29,12 +29,12 @@ export async function adminListQuestions(testId:number) {
   return data
 }
 
-export async function adminCreateQuestion(testId:number, dto: {prompt:string; possessionTime?:number; imageUrl?:string; orderIndex?:number}) {
+export async function adminCreateQuestion(testId:number, dto: {prompt:string; possessionTime?:number; imageUrl?:string }) {
   const { data } = await api.post(`/admin/tests/${testId}/questions`, dto)
   return data
 }
 
-export async function adminUpdateQuestion(testId:number, questionId:number, dto: {prompt?:string; possessionTime?:number; imageUrl?:string; orderIndex?:number}) {
+export async function adminUpdateQuestion(testId:number, questionId:number, dto: {prompt?:string; possessionTime?:number; imageUrl?:string }) {
   const { data } = await api.put(`/admin/tests/${testId}/questions/${questionId}`, dto)
   return data
 }
