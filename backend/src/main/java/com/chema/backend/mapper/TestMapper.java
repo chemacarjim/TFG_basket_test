@@ -23,7 +23,8 @@ public class TestMapper {
                 q.getId(),
                 q.getPrompt(),
                 q.getPossessionTime(),
-                q.getImageUrl()
+                q.getImageUrl(),
+                q.getCorrectValue()
         );
     }
 

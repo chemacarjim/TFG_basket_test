@@ -70,7 +70,7 @@ public class AdminContentServiceImpl implements AdminContentService {
         TestEntity t = testRepo.findById(testId)
                 .orElseThrow(() -> new NotFoundException("TEST_NOT_FOUND", "No existe test id=" + testId));
         return questionRepo.findByTestOrderByIsActiveAsc(t).stream()
-                .map(q -> new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl()))
+                .map(q -> new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl(), q.getCorrectValue()))
                 .toList();
     }
 
@@ -84,9 +84,10 @@ public class AdminContentServiceImpl implements AdminContentService {
                 .prompt(dto.prompt())
                 .possessionTime(dto.possessionTime())
                 .imageUrl(dto.imageUrl())
+                .correctValue(dto.correctValue())
                 .build();
         q = questionRepo.save(q);
-        return new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl());
+        return new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl(), q.getCorrectValue());
     }
 
     @Override
@@ -97,8 +98,9 @@ public class AdminContentServiceImpl implements AdminContentService {
         if (dto.prompt() != null) q.setPrompt(dto.prompt());
         if (dto.possessionTime() != null) q.setPossessionTime(dto.possessionTime());
         if (dto.imageUrl() != null) q.setImageUrl(dto.imageUrl());
+        if (dto.correctValue() != null) q.setCorrectValue(dto.correctValue());
         q = questionRepo.save(q);
-        return new QuestionAdminDto(q.getId(), q.getTest().getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl());
+        return new QuestionAdminDto(q.getId(), q.getTest().getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl(), q.getCorrectValue());
     }
 
     @Override

@@ -8,11 +8,9 @@ import lombok.*;
 @Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
 public class Question {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // FK test_id ON DELETE CASCADE (gestionado por DB)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "test_id", nullable = false)
     private TestEntity test;
@@ -25,4 +23,8 @@ public class Question {
 
     @Column(name = "image_url")
     private String imageUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "correct_value", length = 16)
+    private ChoiceValue correctValue;
 }

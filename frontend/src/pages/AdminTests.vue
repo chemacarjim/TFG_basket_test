@@ -2,6 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useAuthStore } from '../stores/useAuthStore'
 import { adminListTests, adminCreateTest, adminUpdateTest, adminDeleteTest, adminListQuestions, adminCreateQuestion, adminUpdateQuestion, adminDeleteQuestion, adminUploadImage } from '../api/admin'
+import { choiceValues, type ChoiceValue } from '../types/api'
 
 const auth = useAuthStore()
 const loading = ref(true)
@@ -11,7 +12,7 @@ const tests = ref<Array<{id:number; title:string; description:string|null; isAct
 const form = ref({ title:'', description:'', isActive:false })
 const selectedTestId = ref<number|null>(null)
 const questions = ref<any[]>([])
-const qform = ref({ prompt:'', possessionTime:0, imageUrl:'' })
+const qform = ref({ prompt:'', possessionTime:0, imageUrl:'', correctValue:choiceValues[0] })
 const uploading = ref(false)
 
 onMounted(async () => {
@@ -64,7 +65,7 @@ async function selectTest(id:number) {
 async function createQuestion() {
   if (!selectedTestId.value) return
   await adminCreateQuestion(selectedTestId.value, { ...qform.value })
-  qform.value = { prompt:'', possessionTime:0, imageUrl:'' }
+  qform.value = { prompt:'', possessionTime:0, imageUrl:'', correctValue:choiceValues[0] }
   await selectTest(selectedTestId.value)
 }
 
@@ -145,6 +146,11 @@ async function onUpload(e: Event) {
               <input type="file" accept="image/*" @change="onUpload" />
               <span v-if="uploading" class="text-sm text-gray-500">Subiendo…</span>
             </div>
+            <label class="text-sm">Respuesta correcta *</label>
+            <select v-model="qform.correctValue" class="w-full p-2 rounded border">
+              <option disabled value="">Seleccione una opción</option>
+              <option v-for="c in choiceValues" :key="c" :value="c">{{ c.charAt(0).toUpperCase() + c.slice(1) }}</option>
+            </select>
             <input v-model="qform.imageUrl" placeholder="URL imagen (rellenado al subir)" class="w-full p-2 rounded border" />
             <button class="px-4 py-2 rounded-xl shadow" @click="createQuestion">Crear pregunta</button>
           </div>

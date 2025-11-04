@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +82,6 @@ public class SessionServiceImpl implements SessionService {
             throw new BadRequestException("EMPTY_PAYLOAD", "El lote de respuestas está vacío.");
         }
 
-        // Cache de preguntas (para validar pertenencia al test)
         Map<Long, Question> cache = new HashMap<>();
 
         for (var item : request.items()) {
@@ -99,12 +99,14 @@ public class SessionServiceImpl implements SessionService {
                         "La pregunta " + q.getId() + " no pertenece al test de la sesión.");
             }
 
+            boolean correct = item.selectedValue().equals(q.getCorrectValue());
+
             ResponseEntity r = ResponseEntity.builder()
                     .session(session)
                     .question(q)
                     .selectedValue(item.selectedValue())
+                    .isCorrect(correct)
                     .responseTimeMs(item.responseTimeMs())
-                    .isCorrect(null) // MVP: aún no calculamos corrección
                     .build();
 
             responseRepository.save(r);
@@ -120,18 +122,26 @@ public class SessionServiceImpl implements SessionService {
         var now = OffsetDateTime.now();
         s.setFinishedAt(now);
 
-        var responses = responseRepository.findBySession(s);
+        List<ResponseEntity> responses = responseRepository.findBySession(s);
         int total = responses.size();
         int score = 0;
 
         s.setTotal(total);
+
+        for (ResponseEntity r : responses) {
+            if (r.getIsCorrect()) {
+                score++;
+            }
+        }
+        s.setScore(score);
+
         if (s.getStartedAt() != null) {
             long duration = java.time.Duration.between(s.getStartedAt(), now).toMillis();
             s.setDurationMs(duration);
         } else {
             s.setDurationMs(null);
         }
-        s.setScore(score);
+        
         sessionRepository.save(s);
 
         String finishedAt = now.toString();

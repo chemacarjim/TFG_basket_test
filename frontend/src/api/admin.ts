@@ -1,3 +1,4 @@
+import type { ChoiceValue } from '../types/api';
 import { api } from './client'
 
 export async function adminLogin(email: string, password: string): Promise<string> {
@@ -29,7 +30,12 @@ export async function adminListQuestions(testId:number) {
   return data
 }
 
-export async function adminCreateQuestion(testId:number, dto: {prompt:string; possessionTime?:number; imageUrl?:string }) {
+export async function adminCreateQuestion(testId:number, dto: {
+  prompt:string
+  possessionTime?:number
+  imageUrl?:string
+  correctValue?:ChoiceValue
+}) {
   const { data } = await api.post(`/admin/tests/${testId}/questions`, dto)
   return data
 }
