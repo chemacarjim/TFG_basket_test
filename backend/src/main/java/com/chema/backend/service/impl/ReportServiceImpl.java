@@ -30,7 +30,7 @@ public class ReportServiceImpl implements ReportService {
         String name = nvl(s.getParticipantName(), "NA");
         String surname = nvl(s.getParticipantSurname(), "NA");
         Integer total = s.getTotal() != null ? s.getTotal() : (s.getResponses() != null ? s.getResponses().size() : null);
-        Integer score = s.getScore(); // puede ser null
+        Integer score = s.getScore();
         String finishedAtStr = s.getFinishedAt() != null ? s.getFinishedAt().toInstant().atZone(ZONE_MADRID).toString() : "—";
 
         // Generación PDF “dummy” de seguridad para descartar problemas en la librería PDF:
@@ -81,7 +81,15 @@ public class ReportServiceImpl implements ReportService {
         s.getResponses().forEach(r -> {
             String q = r.getQuestion() != null ? nvl(r.getQuestion().getPrompt(), "Pregunta") : "Pregunta";
             Long ms = r.getResponseTimeMs();
-            sb.append("- ").append(q).append(" | t=").append(ms != null ? ms : "—").append(" ms\n");
+            String ok = Boolean.TRUE.equals(r.getIsCorrect()) ? "✓" : "✗";
+            sb.append("- ")
+              .append(q)
+              .append(" | t=")
+              .append(ms != null ? ms : "—")
+              .append(" ms")
+              .append(" | ")
+              .append(ok)
+              .append("\n");
         });
         return sb.toString();
     }

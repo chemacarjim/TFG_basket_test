@@ -64,7 +64,7 @@ async function selectTest(id:number) {
 
 async function createQuestion() {
   if (!selectedTestId.value) return
-  await adminCreateQuestion(selectedTestId.value, { ...qform.value })
+  await adminCreateQuestion(selectedTestId.value, { ...qform.value, correctValue:qform.value.correctValue as ChoiceValue })
   qform.value = { prompt:'', possessionTime:0, imageUrl:'', correctValue:choiceValues[0] }
   await selectTest(selectedTestId.value)
 }
@@ -135,13 +135,14 @@ async function onUpload(e: Event) {
 
       <!-- QUESTIONS -->
       <section>
-        <h2 class="text-lg font-semibold mb-2">Preguntas del test seleccionado</h2>
+        <h2 class="text-lg font-semibold mb-2">Preguntas de: {{ selectedTestId ? tests.find(t => t.id === selectedTestId)?.title : '' }}</h2>
         <div v-if="!selectedTestId" class="text-sm text-gray-600">Selecciona un test para ver sus preguntas.</div>
 
         <div v-else class="space-y-3">
           <div class="space-y-2 p-3 bg-white rounded-xl shadow">
             <input v-model="qform.prompt" placeholder="Enunciado" class="w-full p-2 rounded border" />
-            <input v-model.number="qform.possessionTime" type="number" placeholder="Posession time (ms)" class="w-full p-2 rounded border" />
+            <span class="text-sm text-gray-600">Tiempo de posesión (ms)</span>
+            <input v-model.number="qform.possessionTime" type="number" class="w-full p-2 rounded border" />
             <div class="flex items-center gap-3">
               <input type="file" accept="image/*" @change="onUpload" />
               <span v-if="uploading" class="text-sm text-gray-500">Subiendo…</span>
@@ -151,7 +152,6 @@ async function onUpload(e: Event) {
               <option disabled value="">Seleccione una opción</option>
               <option v-for="c in choiceValues" :key="c" :value="c">{{ c.charAt(0).toUpperCase() + c.slice(1) }}</option>
             </select>
-            <input v-model="qform.imageUrl" placeholder="URL imagen (rellenado al subir)" class="w-full p-2 rounded border" />
             <button class="px-4 py-2 rounded-xl shadow" @click="createQuestion">Crear pregunta</button>
           </div>
 

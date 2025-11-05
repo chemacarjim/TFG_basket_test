@@ -33,7 +33,7 @@ public class TestQueryServiceImpl implements TestQueryService {
         TestEntity test = testRepository.findById(testId)
                 .orElseThrow(() -> new NotFoundException("TEST_NOT_FOUND", "No existe el test con id=" + testId));
 
-        var questions = questionRepository.findByTestOrderByIsActiveAsc(test)
+        var questions = questionRepository.findByTest(test)
                 .stream()
                 .toList();
 

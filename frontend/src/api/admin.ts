@@ -34,13 +34,13 @@ export async function adminCreateQuestion(testId:number, dto: {
   prompt:string
   possessionTime?:number
   imageUrl?:string
-  correctValue?:ChoiceValue
+  correctValue:ChoiceValue
 }) {
   const { data } = await api.post(`/admin/tests/${testId}/questions`, dto)
   return data
 }
 
-export async function adminUpdateQuestion(testId:number, questionId:number, dto: {prompt?:string; possessionTime?:number; imageUrl?:string }) {
+export async function adminUpdateQuestion(testId:number, questionId:number, dto: {prompt?:string; possessionTime?:number; imageUrl?:string; correctValue:ChoiceValue }) {
   const { data } = await api.put(`/admin/tests/${testId}/questions/${questionId}`, dto)
   return data
 }

@@ -69,7 +69,7 @@ public class AdminContentServiceImpl implements AdminContentService {
     public List<QuestionAdminDto> listQuestions(Long testId) {
         TestEntity t = testRepo.findById(testId)
                 .orElseThrow(() -> new NotFoundException("TEST_NOT_FOUND", "No existe test id=" + testId));
-        return questionRepo.findByTestOrderByIsActiveAsc(t).stream()
+        return questionRepo.findByTest(t).stream()
                 .map(q -> new QuestionAdminDto(q.getId(), t.getId(), q.getPrompt(), q.getPossessionTime(), q.getImageUrl(), q.getCorrectValue()))
                 .toList();
     }
