@@ -12,7 +12,7 @@ const tests = ref<Array<{id:number; title:string; description:string|null; isAct
 const form = ref({ title:'', description:'', isActive:false })
 const selectedTestId = ref<number|null>(null)
 const questions = ref<any[]>([])
-const qform = ref({ prompt:'', possessionTime:0, imageUrl:'', correctValue:choiceValues[0] })
+const qform = ref({ prompt:'', possessionTime:12, imageUrl:'', correctValue:choiceValues[0] })
 const uploading = ref(false)
 
 onMounted(async () => {
@@ -141,7 +141,7 @@ async function onUpload(e: Event) {
         <div v-else class="space-y-3">
           <div class="space-y-2 p-3 bg-white rounded-xl shadow">
             <input v-model="qform.prompt" placeholder="Enunciado" class="w-full p-2 rounded border" />
-            <span class="text-sm text-gray-600">Tiempo de posesión (ms)</span>
+            <span class="text-sm text-gray-600">Tiempo de posesión</span>
             <input v-model.number="qform.possessionTime" type="number" class="w-full p-2 rounded border" />
             <div class="flex items-center gap-3">
               <input type="file" accept="image/*" @change="onUpload" />
