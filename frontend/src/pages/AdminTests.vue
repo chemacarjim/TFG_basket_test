@@ -65,7 +65,7 @@ async function selectTest(id:number) {
 async function createQuestion() {
   if (!selectedTestId.value) return
   await adminCreateQuestion(selectedTestId.value, { ...qform.value, correctValue:qform.value.correctValue as ChoiceValue })
-  qform.value = { prompt:'', possessionTime:0, imageUrl:'', correctValue:choiceValues[0] }
+  qform.value = { prompt:'', possessionTime:0, imageUrl:qform.value.imageUrl, correctValue:choiceValues[0] }
   await selectTest(selectedTestId.value)
 }
 
@@ -147,7 +147,7 @@ async function onUpload(e: Event) {
               <input type="file" accept="image/*" @change="onUpload" />
               <span v-if="uploading" class="text-sm text-gray-500">Subiendo…</span>
             </div>
-            <label class="text-sm">Respuesta correcta *</label>
+            <label class="text-sm">Respuesta correcta</label>
             <select v-model="qform.correctValue" class="w-full p-2 rounded border">
               <option disabled value="">Seleccione una opción</option>
               <option v-for="c in choiceValues" :key="c" :value="c">{{ c.charAt(0).toUpperCase() + c.slice(1) }}</option>
@@ -159,9 +159,10 @@ async function onUpload(e: Event) {
             <div v-for="q in questions" :key="q.id" class="p-3 bg-white rounded-xl shadow">
               <div class="font-medium">{{ q.prompt }}</div>
               <div class="text-sm text-gray-600">
-                Tiempo: {{ q.possessionTime ?? '—' }} ms
+                Tiempo: {{ q.possessionTime ?? '—' }}
               </div>
               <img v-if="q.imageUrl" :src="q.imageUrl" class="max-h-40 mt-2 rounded" />
+              <div class="text-sm text-gray-600">{{ q.correctValue.charAt(0).toUpperCase() + q.correctValue.slice(1) }}</div>
               <div class="flex gap-2 mt-2">
                 <button class="px-3 py-1 rounded shadow" @click="removeQuestion(q)">Borrar</button>
               </div>

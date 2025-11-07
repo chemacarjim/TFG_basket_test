@@ -184,7 +184,12 @@ onMounted(async () => {
     <div v-if="!loading && sessionStore.sessionId && !session.finished" class="space-y-4 p-4 bg-white rounded-xl shadow">
       <h2 class="text-lg font-semibold">Sesión #{{ sessionStore.sessionId }}</h2>
       <QuestionView :question="test.questions[currentIndex]" @answered="onAnswered" />
+      <div class="imgRunnerContainer">
+        <img :src="test.questions[currentIndex].imageUrl" alt="Pregunta" />
+        <span>{{ test.questions[currentIndex].possessionTime }}</span>
+      </div>
       <p class="text-gray-500">Pregunta {{ currentIndex + 1 }} de {{ test.questions.length }}</p>
+      
     </div>
 
     <!-- Sesión finalizada -->
@@ -205,5 +210,35 @@ onMounted(async () => {
 </template>
 
 <style scoped>
-/* Aquí puedes añadir estilos personalizados o usar únicamente Tailwind */
+@font-face {
+  font-family: 'Digital-7';
+  src: url('fonts/digital-7.ttf') format('truetype');
+}
+
+.imgRunnerContainer > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  margin: 10px;
+}
+
+.imgRunnerContainer > span {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Digital-7', sans-serif;
+  font-size: 40px;
+  color: #d60505;
+  margin: 10px;
+  letter-spacing: 4px;
+  text-shadow: 
+  0 0 10px #ff0000,
+  0 0 20px #ff0000,
+  0 0 40px #ff0000;
+  background-color: #000000;
+}
 </style>
