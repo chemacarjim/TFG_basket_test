@@ -13,6 +13,6 @@ app:
     jwtSecret: ${JWT_SECRET}
     jwtExpirationMinutes: 240
   cloudinary:
-    cloudName: ${CLOUDINARY_CLOUD_NAME}
-    apiKey: ${CLOUDINARY_API_KEY}
-    apiSecret: ${CLOUDINARY_API_SECRET}
+    cloud-name: "dlijkbqr9"
+    api-key: "829682312575565"
+    api-secret: "2fLZ6bLyJJGut1Fvn0uFNdAZ5KE"

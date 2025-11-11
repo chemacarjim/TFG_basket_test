@@ -33,7 +33,7 @@ export async function adminListQuestions(testId:number) {
 export async function adminCreateQuestion(testId:number, dto: {
   prompt:string
   possessionTime?:number
-  imageUrl?:string
+  imageUrl:string
   correctValue:ChoiceValue
 }) {
   const { data } = await api.post(`/admin/tests/${testId}/questions`, dto)

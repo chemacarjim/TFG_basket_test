@@ -88,10 +88,13 @@ async function onUpload(e: Event) {
   try {
     const url = await adminUploadImage(input.files[0])
     qform.value.imageUrl = url
+  } catch (e: any) {
+    alert(e?.response?.data?.message || 'Error subiendo imagen')
   } finally {
     uploading.value = false
   }
 }
+
 </script>
 
 <template>

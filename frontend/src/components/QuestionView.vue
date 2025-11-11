@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import type { ChoiceValue } from '../types/api'
 
 // Props: una pregunta con ID e imagen
 const props = defineProps<{
-  question: { id: number; imageUrl: string | null }
+  question: { id: number; imageUrl: string | null; possessionTime: number }
 }>()
 
 // Emitimos un evento 'answered' al responder
@@ -31,16 +31,31 @@ function answer(choice: ChoiceValue) {
   })
   // Para la siguiente pregunta, el cronómetro se reiniciará en el montaje del nuevo componente
 }
+
+const possessionSizeClass = computed(() => {
+  const raw = props.question.possessionTime ?? 0
+  const digits = `${Math.abs(raw)}`.length
+  return digits >= 2 ? 'double-digit' : 'single-digit'
+})
 </script>
 
 <template>
   <div class="space-y-4 text-center">
-    <img
-      v-if="question.imageUrl"
-      :src="question.imageUrl"
-      alt="Jugada de baloncesto"
-      class="mx-auto max-h-96 rounded-lg shadow"
-    />
+    <div class="relative inline-block mx-auto">
+      <img
+        v-if="question.imageUrl"
+        :src="question.imageUrl"
+        alt="Jugada de baloncesto"
+        class="mx-auto max-h-96 rounded-lg shadow"
+      />
+      <span
+        v-if="question.imageUrl"
+        class="possessionTime"
+        :class="possessionSizeClass"
+      >
+        {{ question.possessionTime }}
+      </span>
+    </div>
     <div class="flex justify-center gap-6">
       <button
         class="px-4 py-2 bg-blue-500 text-white rounded shadow"
@@ -59,5 +74,35 @@ function answer(choice: ChoiceValue) {
 </template>
 
 <style scoped>
-/* puedes ajustar colores y tamaños según Tailwind */
+  @font-face {
+    font-family: 'Digital-7';
+    src: url('fonts/digital-7.ttf') format('truetype');
+  }
+
+  .possessionTime {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.35rem 0.5rem;
+    font-family: 'Digital-7', sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    color: #d60505;
+    letter-spacing: 4px;
+    background-color: rgba(0, 0, 0, 0.85);
+    border-radius: 12px;
+    z-index: 1;
+    width: clamp(50px, 10%, 110px);
+  }
+
+  .possessionTime.single-digit {
+    width: clamp(40px, 8%, 90px);
+  }
+
+  .possessionTime.double-digit {
+    width: clamp(60px, 12%, 130px);
+  }
 </style>

@@ -34,13 +34,15 @@ public class AssetServiceImpl implements AssetService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public String uploadQuestionImage(MultipartFile file) {
         if (cloudinary == null) {
             throw new IllegalStateException("Cloudinary no configurado");
         }
         try {
-            Map upload = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "folder", "tfg-basket/questions"
+            Map<String, Object> upload = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
+                    "folder", "tfg-basket/questions",
+                    "resource_type", "image"
             ));
             return (String) upload.get("secure_url");
         } catch (IOException e) {
