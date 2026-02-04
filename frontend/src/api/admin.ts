@@ -59,8 +59,19 @@ export async function adminUploadImage(file: File): Promise<string> {
 export async function adminListSessions(testId:number, limit:number, offset:number) {
   const { data } = await api.get(`/admin/tests/${testId}/sessions`, { params: { limit, offset } })
   return data as {
-    items: Array<{id:number; name:string; surname:string; finishedAt:string|null; score:number; total:number}>,
+    items: Array<{sessionId:number; name:string; surname:string; finishedAt:string|null; score:number; total:number}>,
     nextOffset: number,
     hasMore: boolean
   }
+}
+
+export async function adminDownloadSessionReport(
+  testId:number,
+  sessionId:number
+): Promise<Blob> {
+  const { data } = await api.get(
+    `/admin/tests/${testId}/sessions/${sessionId}/report.pdf`,
+    { responseType: 'blob' }
+  )
+  return data
 }

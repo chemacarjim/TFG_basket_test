@@ -18,6 +18,7 @@ const sessionStore = useSessionStore()
 const test = ref<any>(null)
 const loading = ref(true)
 const loadError = ref<string | null>(null)
+const currentSessionId = ref<number | null>(null)
 
 // Estado de la sesión en la UI
 const session = ref<{ finished?: boolean }>({})
@@ -61,6 +62,7 @@ async function startSession() {
     formError.value = null
     if (!validatePre()) return
     await sessionStore.start(testId, { ...pre.value })
+    currentSessionId.value = sessionStore.sessionId
     session.value.finished = false
     currentIndex.value = 0
     responsesCount.value = 0
@@ -87,22 +89,26 @@ function onAnswered(payload: { questionId: number; selectedValue: ChoiceValue; r
 
 // Finalizar sesión y mostrar datos
 async function finishSessionWithStore() {
-  await sessionStore.flushBatch()
-  const res = await sessionStore.finish()
-  session.value.finished = true
-  finishInfo.value = {
-    finishedAt: (res as any).finishedAt,
-    score: (res as any).score ?? null,
-    total: (res as any).total ?? null
+  try {
+    const res = await sessionStore.finish()
+    currentSessionId.value = sessionStore.sessionId
+    session.value.finished = true
+    finishInfo.value = {
+      finishedAt: (res as any).finishedAt,
+      score: (res as any).score ?? null,
+      total: (res as any).total ?? null
+    }
+  } catch (e: any) {
+    formError.value = e?.response?.data?.message || e?.message || 'Error finalizando la sesión'
   }
 }
 
 // Descargar el PDF de la sesión finalizada
 function downloadPdf() {
-  if (!sessionStore.sessionId) return
+  const sid = currentSessionId.value || sessionStore.sessionId
+  if(!sid) return
   const base = import.meta.env.VITE_API_URL
-  const url = `${base}/sessions/${sessionStore.sessionId}/report.pdf`
-  window.open(url, '_blank', 'noopener')
+  window.open(`${base}/sessions/${sid}/report.pdf`, '_blank', 'noopener')
 }
 
 // Cargar los detalles del test al montar el componente
@@ -150,15 +156,31 @@ onMounted(async () => {
         </div>
         <div>
           <label class="text-sm">Género</label>
-          <input v-model="pre.gender" class="w-full p-2 rounded border" placeholder="F/M/..." />
+          <select v-model="pre.gender" class="w-full p-2 rounded border">
+            <option value="">Seleccione género</option>
+            <option value="FEMENINO">Femenino</option>
+            <option value="MASCULINO">Masculino</option>
+            <option value="OTRO">Otro</option>
+          </select>
         </div>
         <div>
           <label class="text-sm">Mano dominante</label>
-          <input v-model="pre.dominantHand" class="w-full p-2 rounded border" placeholder="Derecha/Izquierda" />
+          <select v-model="pre.dominantHand" class="w-full p-2 rounded border">
+            <option value="">Seleccione mano dominante</option>
+            <option value="DERECHA">Derecha</option>
+            <option value="IZQUIERDA">Izquierda</option>
+          </select>
         </div>
         <div>
           <label class="text-sm">Posición</label>
-          <input v-model="pre.position" class="w-full p-2 rounded border" placeholder="Base/Escolta/Alero/..." />
+          <select v-model="pre.position" class="w-full p-2 rounded border">
+            <option value="">Seleccione posición</option>
+            <option value="BASE">Base</option>
+            <option value="ESCOLTA">Escolta</option>
+            <option value="ALERO">Alero</option>
+            <option value="ALA-PIVOT">Ala-Pivot</option>
+            <option value="PIVOT">Pivot</option>
+          </select>
         </div>
         <div>
           <label class="text-sm">INASIDNR</label>

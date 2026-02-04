@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { adminListSessions } from '../api/admin'
+import { adminListSessions, adminDownloadSessionReport } from '../api/admin'
 
 const route = useRoute()
 const router = useRouter()
@@ -19,7 +19,7 @@ async function loadMore() {
   error.value = null
   try {
     const res = await adminListSessions(testId, 15, offset.value)
-    items.value.push(...res.items.map(item => ({ ...item, sessionId: item.id })))
+    items.value.push(...res.items)
     offset.value = res.nextOffset ?? (offset.value + res.items.length)
     hasMore.value = !!res.hasMore
   } catch (e:any) {
@@ -29,9 +29,15 @@ async function loadMore() {
   }
 }
 
-function downloadPdf(sid:number) {
-  const base = import.meta.env.VITE_API_URL
-  window.open(`${base}/sessions/${sid}/report.pdf`, '_blank', 'noopener')
+async function downloadPdf(sid:number) {
+  try{
+    const blob = await adminDownloadSessionReport(testId, sid)
+    const url = window.URL.createObjectURL(blob)
+    window.open(url, '_blank')
+    setTimeout(() => URL.revokeObjectURL(url), 5000)
+  } catch (e:any) {
+    alert(e?.response?.data?.message || 'Error descargando PDF')
+  }
 }
 
 onMounted(loadMore)
