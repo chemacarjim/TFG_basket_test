@@ -9,17 +9,8 @@ export const useAuthStore = defineStore('auth', {
     isSuperAdmin: false as boolean,
   }),
   getters: {
-    roles(state): string[] {
-      if(!state.token) return []
-      try {
-        const payload = JSON.parse(atob(state.token.split('.')[1]!))
-        return payload.roles || []
-      } catch {
-        return []
-      }
-    },
-    isSuperAdmin(): boolean {
-      return this.roles.includes('SUPER_ADMIN')
+    hasSuperAdminRole(): boolean {
+      return this.isSuperAdmin
     }
   },
   actions: {

@@ -113,7 +113,7 @@ async function onUpload(e: Event) {
         Tests
       </router-link>
       <router-link
-        v-if="auth.isSuperAdmin"
+        v-if="auth.hasSuperAdminRole"
         to="/admin/users"
         class="px-3 py-2"
         :class="route.path.startsWith('/admin/users') 
