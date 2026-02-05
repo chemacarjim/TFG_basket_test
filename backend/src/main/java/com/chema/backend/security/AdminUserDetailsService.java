@@ -16,9 +16,12 @@ public class AdminUserDetailsService implements UserDetailsService {
         var admin = adminRepo.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Admin not found"));
         var pwd = admin.getPasswordHash() != null ? admin.getPasswordHash() : "{noop}invalid";
+        String[] roles = admin.getIsSuperAdmin() != null && admin.getIsSuperAdmin()
+            ? new String[] { "ADMIN", "SUPER_ADMIN" }
+            : new String[] { "ADMIN" };
         return User.withUsername(admin.getEmail())
                 .password(pwd)
-                .roles("ADMIN")
+                .roles(roles)
                 .build();
     }
 }

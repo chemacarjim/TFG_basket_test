@@ -18,6 +18,9 @@ public class AdminUser {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(name = "is_super_admin", nullable = false)
+    private Boolean isSuperAdmin;
+
     // Campo legacy que la app borra al bootstrap; no se usa para login.
     @Column(name = "password_plain")
     private String passwordPlain;

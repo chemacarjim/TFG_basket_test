@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '../stores/useAuthStore'
 import { adminListTests, adminCreateTest, adminUpdateTest, adminDeleteTest, adminListQuestions, adminCreateQuestion, adminUpdateQuestion, adminDeleteQuestion, adminUploadImage } from '../api/admin'
 import { choiceValues, type ChoiceValue } from '../types/api'
 
+const route = useRoute()
 const auth = useAuthStore()
 const loading = ref(true)
 const error = ref<string|null>(null)
@@ -100,6 +102,26 @@ async function onUpload(e: Event) {
 <template>
   <div class="max-w-6xl mx-auto p-6">
     <h1 class="text-2xl font-bold mb-4">Panel admin</h1>
+
+    <nav class="flex gap-4 border-b pb-2 mb-4">
+      <router-link
+        to="/admin/tests"
+        class="px-3 py-2"
+        :class="route.path.startsWith('/admin/tests') 
+          ? 'border-b-2 border-blue-500 text-blue-500' 
+          : 'border-b-2 border-transparent text-gray-600'">
+        Tests
+      </router-link>
+      <router-link
+        v-if="auth.isSuperAdmin"
+        to="/admin/users"
+        class="px-3 py-2"
+        :class="route.path.startsWith('/admin/users') 
+          ? 'border-b-2 border-blue-500 text-blue-500' 
+          : 'border-b-2 border-transparent text-gray-600'">
+        Usuarios
+      </router-link>
+    </nav>
 
     <div v-if="!auth.token" class="text-red-600 mb-4">
       Debes iniciar sesión para gestionar contenidos.

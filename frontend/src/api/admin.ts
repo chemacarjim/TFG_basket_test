@@ -1,9 +1,13 @@
-import type { ChoiceValue } from '../types/api';
+import type { ChoiceValue, AdminUser } from '../types/api';
 import { api } from './client'
 
-export async function adminLogin(email: string, password: string): Promise<string> {
+export interface LoginResponse {
+  token: string;
+  isSuperAdmin: boolean;
+}
+export async function adminLogin(email: string, password: string): Promise<LoginResponse> {
   const { data } = await api.post('/admin/auth/login', { email, password })
-  return data.token
+  return data as LoginResponse
 }
 
 export async function adminListTests(): Promise<Array<{id:number; title:string; description:string|null; isActive:boolean}>> {
@@ -74,4 +78,23 @@ export async function adminDownloadSessionReport(
     { responseType: 'blob' }
   )
   return data
+}
+
+export async function adminListUsers(): Promise<AdminUser[]> {
+  const { data } = await api.get('/admin/users')
+  return data as AdminUser[]
+}
+
+export async function adminCreateUser(dto: { email: string; password: string; isSuperAdmin: boolean }): Promise<AdminUser> {
+  const { data } = await api.post('/admin/users', dto)
+  return data as AdminUser
+}
+
+export async function adminUpdateUser(id: number, dto: { email?: string; password?: string; isSuperAdmin?: boolean }): Promise<AdminUser> {
+  const { data } = await api.put(`/admin/users/${id}`, dto)
+  return data as AdminUser
+}
+
+export async function adminDeleteUser(id: number): Promise<void> {
+  await api.delete(`/admin/users/${id}`)
 }

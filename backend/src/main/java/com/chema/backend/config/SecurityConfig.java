@@ -28,7 +28,8 @@ public class SecurityConfig {
           .cors(cors -> cors.configurationSource(corsConfigurationSource()))
           .authorizeHttpRequests(auth -> auth
               .requestMatchers(HttpMethod.POST, "/api/v1/admin/auth/login").permitAll()
-              .requestMatchers("/api/v1/admin/**").authenticated()
+              .requestMatchers("/api/v1/admin/users/**").hasRole("SUPER_ADMIN")
+              .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
               .anyRequest().permitAll()
           )
           .addFilterBefore(jwtAuthFilter, BasicAuthenticationFilter.class);
