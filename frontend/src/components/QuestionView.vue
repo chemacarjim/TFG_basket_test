@@ -1,35 +1,43 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, watch, ref } from 'vue'
 import type { ChoiceValue } from '../types/api'
 
-// Props: una pregunta con ID e imagen
 const props = defineProps<{
   question: { id: number; imageUrl: string | null; possessionTime: number }
 }>()
 
-// Emitimos un evento 'answered' al responder
 const emit = defineEmits<{
   (e: 'answered', payload: { questionId: number; selectedValue: ChoiceValue; responseTimeMs: number }): void
 }>()
 
-// Guardamos cuándo empieza la pregunta
 const startTime = ref<number>(0)
+const selectedValue = ref<ChoiceValue | null>(null)
 
-// Reiniciamos el cronómetro cuando aparece la pregunta
-onMounted(() => {
-  startTime.value = Date.now()
-})
+watch(
+  () => props.question?.id,
+  () => {
+    startTime.value = Date.now()
+    selectedValue.value = null
+  },
+  { immediate: true }
+)
 
-// Al pulsar un botón, calculamos el tiempo y emitimos
-function answer(choice: ChoiceValue) {
-  const endTime = Date.now()
-  const responseTimeMs = endTime - startTime.value
+function selectChoice(choice: ChoiceValue) {
+  selectedValue.value = choice
+}
+
+function clearSelection() {
+  selectedValue.value = null
+}
+
+function confirmAnswer() {
+  if (!selectedValue.value) return
+  const responseTimeMs = Date.now() - startTime.value
   emit('answered', {
     questionId: props.question.id,
-    selectedValue: choice,
-    responseTimeMs: responseTimeMs,
+    selectedValue: selectedValue.value,
+    responseTimeMs,
   })
-  // Para la siguiente pregunta, el cronómetro se reiniciará en el montaje del nuevo componente
 }
 
 const possessionSizeClass = computed(() => {
@@ -37,38 +45,67 @@ const possessionSizeClass = computed(() => {
   const digits = `${Math.abs(raw)}`.length
   return digits >= 2 ? 'double-digit' : 'single-digit'
 })
+
 </script>
 
 <template>
-  <div class="space-y-4 text-center">
-    <div class="relative inline-block mx-auto">
-      <img
-        v-if="question.imageUrl"
-        :src="question.imageUrl"
-        alt="Jugada de baloncesto"
-        class="mx-auto max-h-96 rounded-lg shadow"
-      />
-      <span
-        v-if="question.imageUrl"
-        class="possessionTime"
-        :class="possessionSizeClass"
-      >
-        {{ question.possessionTime }}
-      </span>
+  <div class="space-y-5 text-center">
+    <div class="flex justify-center">
+      <div v-if="question.imageUrl" class="relative w-[80%]">
+        <img
+          :src="question.imageUrl"
+          alt="Jugada de baloncesto"
+          class="w-full h-auto max-h-96 rounded-lg shadow object-contain"
+        />
+        <span
+          class="possessionTime"
+          :class="possessionSizeClass"
+        >
+          {{ question.possessionTime }}
+        </span>
+      </div>
     </div>
-    <div class="flex justify-center gap-6">
+
+    <div class="flex justify-center gap-4">
       <button
-        class="px-4 py-2 bg-blue-500 text-white rounded shadow"
-        @click="answer('DRIBBLE')"
-      >Botar</button>
+        class="min-w-28 px-6 py-2.5 text-base font-semibold rounded shadow transition"
+        :class="selectedValue === 'DRIBBLE' ? 'bg-blue-700 text-white ring-2 ring-blue-300' : 'bg-blue-500 text-white hover:bg-blue-600'"
+        @click="selectChoice('DRIBBLE')"
+      >
+        Botar
+      </button>
+
       <button
-        class="px-4 py-2 bg-green-500 text-white rounded shadow"
-        @click="answer('PASS')"
-      >Pasar</button>
+        class="min-w-28 px-6 py-2.5 text-base font-semibold rounded shadow transition"
+        :class="selectedValue === 'PASS' ? 'bg-green-700 text-white ring-2 ring-green-300' : 'bg-green-500 text-white hover:bg-green-600'"
+        @click="selectChoice('PASS')"
+      >
+        Pasar
+      </button>
+
       <button
-        class="px-4 py-2 bg-red-500 text-white rounded shadow"
-        @click="answer('SHOOT')"
-      >Tirar</button>
+        class="min-w-28 px-6 py-2.5 text-base font-semibold rounded shadow transition"
+        :class="selectedValue === 'SHOOT' ? 'bg-red-700 text-white ring-2 ring-red-300' : 'bg-red-500 text-white hover:bg-red-600'"
+        @click="selectChoice('SHOOT')"
+      >
+        Tirar
+      </button>
+    </div>
+
+    <div class="flex justify-center gap-3">
+      <button
+        class="px-5 py-2 rounded-xl bg-indigo-600 text-white text-base font-semibold hover:bg-indigo-700 disabled:opacity-50"
+        :disabled="!selectedValue"
+        @click="confirmAnswer"
+      >
+        Confirmar respuesta
+      </button>
+      <button
+        class="px-5 py-2 rounded-xl bg-gray-200 text-gray-800 text-base font-semibold hover:bg-gray-300"
+        @click="clearSelection"
+      >
+        Borrar
+      </button>
     </div>
   </div>
 </template>

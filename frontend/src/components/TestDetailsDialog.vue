@@ -29,20 +29,20 @@ watch(
 </script>
 
 <template>
-  <dialog ref="dialogRef" class="backdrop:bg-black/50 rounded-lg p-0 max-w-lg">
-    <div v-if="test" class="p-6 bg-white rounded-lg">
-      <h2 class="text-2xl font-semibold">{{ test.title }}</h2>
-      <p v-if="test.description" class="mt-2 text-gray-700">{{ test.description }}</p>
-      <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
+  <dialog ref="dialogRef" class="backdrop:bg-black/50 rounded-xl p-0 w-[min(92vw,58rem)] max-w-none">
+    <div v-if="test" class="p-10 bg-white rounded-xl">
+      <h2 class="text-4xl font-semibold">{{ test.title }}</h2>
+      <p v-if="test.description" class="mt-3 text-lg text-gray-700">{{ test.description }}</p>
+      <div class="grid grid-cols-2 gap-6 mt-6 text-base">
         <div><strong>ID:</strong> {{ test.id }}</div>
         <div><strong>Estado:</strong> Activo</div>
         <div><strong>Preguntas:</strong> {{ Array.isArray(test.questions) ? test.questions.length : '—' }}</div>
       </div>
-      <div class="mt-6 flex justify-end gap-2">
-        <button class="px-4 py-2 bg-gray-100 rounded-xl" @click="emit('close')">
+      <div class="mt-10 flex justify-end gap-3">
+        <button class="px-6 py-3 bg-gray-100 rounded-xl text-lg" @click="emit('close')">
           Cerrar
         </button>
-        <button class="px-4 py-2 bg-blue-600 text-white rounded-xl"
+        <button class="px-6 py-3 bg-blue-600 text-white rounded-xl text-lg"
                 @click="emit('start', test.id)">
           Iniciar test
         </button>

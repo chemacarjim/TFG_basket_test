@@ -21,7 +21,7 @@ const emit = defineEmits<{
       {{ test.description }}
     </p>
     <div class="flex gap-2 mt-4">
-      <button class="flex-1 px-3 py-2 rounded-xl bg-gray-200 hover:bg-gray-300"
+      <button class="flex-1 px-3 py-2 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 transition"
               @click="emit('view', test.id)">
         Ver
       </button>

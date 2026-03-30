@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
+
+const route = useRoute()
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-gray-100 text-gray-900">
     <!-- Contenido -->
-    <main class="flex-1">
+    <main
+      class="flex-1"
+      :class="route.path === '/' || route.path === '/tests' || route.path.startsWith('/test/') ? 'bg-gray-900' : ''"
+    >
       <RouterView />
     </main>
 

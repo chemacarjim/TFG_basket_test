@@ -6,8 +6,8 @@ defineProps<{
 </script>
 
 <template>
-  <div class="flex flex-col items-center p-4 bg-gray-900/80 rounded-xl shadow-md">
-    <span class="text-3xl font-bold text-white">{{ value }}</span>
-    <span class="mt-1 text-sm text-gray-200 uppercase">{{ title }}</span>
+  <div class="flex flex-col items-center p-7 bg-gray-800 rounded-2xl border border-gray-600/60 shadow-lg">
+    <span class="text-4xl font-extrabold text-white">{{ value }}</span>
+    <span class="mt-2 text-base text-gray-100 uppercase tracking-wide">{{ title }}</span>
   </div>
 </template>
