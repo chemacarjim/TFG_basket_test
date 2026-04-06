@@ -1,6 +1,9 @@
 export interface TestSummary { id: number; title: string; description: string | null }
 export interface Question { id: number; prompt: string; possessionTime: number | null; imageUrl: string | null }
 export interface TestDetail extends TestSummary { questions: Question[] }
+export interface PublicAverageScore {
+  averageScorePercent: number
+}
 export interface CreateSessionResponse { sessionId: number }
 export interface FinishSessionItemResponse {
   questionId: number

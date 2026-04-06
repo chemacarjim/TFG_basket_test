@@ -1,5 +1,5 @@
 import { api } from './client'
-import type { TestSummary, TestDetail, FinishSessionResponse } from '../types/api'
+import type { TestSummary, TestDetail, FinishSessionResponse, PublicAverageScore } from '../types/api'
 
 export async function listActiveTests(): Promise<TestSummary[]> {
   const { data } = await api.get('/tests/active')
@@ -34,5 +34,10 @@ export async function submitResponses(sessionId: number, body: any) {
 
 export async function finishSession(sessionId: number): Promise<FinishSessionResponse> {
   const { data } = await api.post(`/sessions/${sessionId}/finish`)
+  return data
+}
+
+export async function getPublicAverageScore(): Promise<PublicAverageScore> {
+  const { data } = await api.get('/tests/average-score')
   return data
 }

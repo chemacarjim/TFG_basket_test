@@ -1,12 +1,14 @@
 package com.chema.backend.service.impl;
 
 import com.chema.backend.domain.entity.TestEntity;
+import com.chema.backend.dto.PublicAverageScoreDto;
 import com.chema.backend.dto.TestDetailDto;
 import com.chema.backend.dto.TestSummaryDto;
 import com.chema.backend.exception.NotFoundException;
 import com.chema.backend.mapper.TestMapper;
 import com.chema.backend.repository.QuestionRepository;
 import com.chema.backend.repository.TestRepository;
+import com.chema.backend.repository.TestSessionRepository;
 import com.chema.backend.service.TestQueryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,7 @@ public class TestQueryServiceImpl implements TestQueryService {
 
     private final TestRepository testRepository;
     private final QuestionRepository questionRepository;
+    private final TestSessionRepository testSessionRepository;
 
     @Override
     public List<TestSummaryDto> listActiveTests() {
@@ -38,5 +41,11 @@ public class TestQueryServiceImpl implements TestQueryService {
                 .toList();
 
         return TestMapper.toDetail(test, questions);
+    }
+
+    @Override
+    public PublicAverageScoreDto getPublicAverageScore() {
+        Double avg = testSessionRepository.findAverageScorePercent();
+        return new PublicAverageScoreDto(avg == null ? 0.0 : avg);
     }
 }

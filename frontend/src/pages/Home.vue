@@ -2,13 +2,14 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import MetricCard from '../components/MetricCard.vue'
-import { listActiveTests } from '../api/public'
+import { getPublicAverageScore, listActiveTests } from '../api/public'
 
 const router = useRouter()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
 const availableTests = ref(0)
+const averageScore = ref('0.0%')
 
 function isIqTestTitle(title: string | null | undefined) {
   return (title ?? '').trim().toLowerCase().includes('iq')
@@ -16,8 +17,10 @@ function isIqTestTitle(title: string | null | undefined) {
 
 onMounted(async () => {
   try {
-    const tests = await listActiveTests()
+    const [tests, average] = await Promise.all([listActiveTests(), getPublicAverageScore()])
     availableTests.value = tests.filter((test) => !isIqTestTitle(test.title)).length
+    const safeAvg = Number.isFinite(average.averageScorePercent) ? average.averageScorePercent : 0
+    averageScore.value = `${safeAvg.toFixed(1)}%`
   } catch (e: any) {
     error.value = e?.message ?? 'Error cargando tests'
   } finally {
@@ -43,8 +46,9 @@ onMounted(async () => {
         <div v-if="loading" class="text-center text-gray-400">Cargando métricas...</div>
         <div v-else-if="error" class="text-center text-red-400">{{ error }}</div>
 
-        <div v-else class="grid grid-cols-1 gap-7 max-w-xl mx-auto">
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-7 max-w-4xl mx-auto">
           <MetricCard title="Tests disponibles" :value="availableTests" />
+          <MetricCard title="Nota media" :value="averageScore" />
         </div>
       </section>
 

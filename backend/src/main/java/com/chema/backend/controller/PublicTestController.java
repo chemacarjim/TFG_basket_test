@@ -31,6 +31,11 @@ public class PublicTestController {
         return ResponseEntity.ok(testQueryService.getTestDetail(id));
     }
 
+    @GetMapping("/tests/average-score")
+    public ResponseEntity<PublicAverageScoreDto> getAverageScore() {
+        return ResponseEntity.ok(testQueryService.getPublicAverageScore());
+    }
+
     // 3) Crear sesión para un test
     @PostMapping("/tests/{id}/sessions")
     public ResponseEntity<CreateSessionResponseDto> createSession(
