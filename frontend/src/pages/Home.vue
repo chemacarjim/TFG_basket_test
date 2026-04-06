@@ -31,7 +31,7 @@ onMounted(async () => {
       <!-- Hero -->
       <section class="text-center mb-14">
         <div class="text-6xl mb-4">🏀</div>
-        <h1 class="text-5xl md:text-6xl font-extrabold text-white">Basketball IQ</h1>
+        <h1 class="text-5xl md:text-6xl font-extrabold text-white">Basketball Tests</h1>
         <p class="mt-4 text-xl md:text-2xl text-gray-300">
           Plataforma de análisis de toma de decisiones en baloncesto
         </p>

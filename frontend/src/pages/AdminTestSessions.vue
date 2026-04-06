@@ -33,8 +33,13 @@ async function downloadPdf(sid:number) {
   try{
     const blob = await adminDownloadSessionReport(testId, sid)
     const url = window.URL.createObjectURL(blob)
-    window.open(url, '_blank')
-    setTimeout(() => URL.revokeObjectURL(url), 5000)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `session-${sid}-report.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   } catch (e:any) {
     alert(e?.response?.data?.message || 'Error descargando PDF')
   }
