@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface ResponseRepository extends JpaRepository<ResponseEntity, Long> {
     List<ResponseEntity> findBySession(TestSession session);
+    List<ResponseEntity> findBySessionOrderByIdAsc(TestSession session);
 }

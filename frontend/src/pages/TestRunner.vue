@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getTestDetail } from '../api/public'
 import { useSessionStore } from '../stores/useSessionStore'
 import QuestionView from '../components/QuestionView.vue'
-import type { ChoiceValue } from '../types/api'
+import type { ChoiceValue, FinishSessionItemResponse } from '../types/api'
 
 // Leer parámetro de ruta
 const route = useRoute()
@@ -40,7 +40,14 @@ const errors = ref<Record<string, boolean>>({})
 const formError = ref<string | null>(null)
 
 // Información de la sesión finalizada
-const finishInfo = ref<{ finishedAt?: string; score?: number | null; total?: number | null }>({})
+const finishInfo = ref<{
+  finishedAt?: string
+  score?: number | null
+  total?: number | null
+  durationMs?: number | null
+  items?: FinishSessionItemResponse[]
+}>({})
+const localResponses = ref<Array<{ questionId: number; selectedValue: ChoiceValue; responseTimeMs: number }>>([])
 
 // Control de la pregunta actual y número de respuestas
 const currentIndex = ref<number>(0)
@@ -57,6 +64,71 @@ const progressPercent = computed(() => {
   if (!questionsCount.value) return 0
   return Math.round(((currentIndex.value + 1) / questionsCount.value) * 100)
 })
+const responseByQuestionId = computed(() => {
+  const map = new Map<number, { selectedValue: ChoiceValue; responseTimeMs: number }>()
+  for (const item of localResponses.value) {
+    map.set(item.questionId, { selectedValue: item.selectedValue, responseTimeMs: item.responseTimeMs })
+  }
+  return map
+})
+const totalTimeMs = computed(() => {
+  if (typeof finishInfo.value.durationMs === 'number' && finishInfo.value.durationMs >= 0) {
+    return finishInfo.value.durationMs
+  }
+  return localResponses.value.reduce((sum, item) => sum + item.responseTimeMs, 0)
+})
+const totalTimeLabel = computed(() => {
+  const ms = totalTimeMs.value
+  const totalSeconds = Math.max(0, Math.round(ms / 1000))
+  const minutes = Math.floor(totalSeconds / 60)
+  const seconds = totalSeconds % 60
+  return `${minutes}m ${seconds.toString().padStart(2, '0')}s`
+})
+const resultRows = computed(() => {
+  const backendItems = finishInfo.value.items ?? []
+  if (backendItems.length > 0) {
+    return backendItems.map((item, index) => ({
+      id: item.questionId,
+      index: index + 1,
+      prompt: item.questionPrompt || `Pregunta ${index + 1}`,
+      selectedValue: item.selectedValue ?? null,
+      isCorrect: item.isCorrect ?? null,
+    }))
+  }
+
+  // Fallback visual si no llegan ítems desde backend.
+  const questions = test.value?.questions ?? []
+  return questions.map((q: any, index: number) => {
+    const userResponse = responseByQuestionId.value.get(q.id)
+    return {
+      id: q.id,
+      index: index + 1,
+      prompt: q.prompt || `Pregunta ${index + 1}`,
+      selectedValue: userResponse?.selectedValue ?? null,
+      isCorrect: null,
+    }
+  })
+})
+
+function choiceLabel(value: ChoiceValue | string | null | undefined) {
+  if (!value) return 'No disponible'
+  if (value === 'DRIBBLE') return 'Botar'
+  if (value === 'PASS') return 'Pasar'
+  if (value === 'SHOOT') return 'Tirar'
+  return String(value)
+}
+
+function outcomeLabel(isCorrect: boolean | null) {
+  if (isCorrect === true) return 'Acierto'
+  if (isCorrect === false) return 'Fallo'
+  return 'No disponible'
+}
+
+function outcomeEmoji(isCorrect: boolean | null) {
+  if (isCorrect === true) return '🟢'
+  if (isCorrect === false) return '🔴'
+  return '⚪'
+}
 
 // Validación básica del formulario
 function validatePre() {
@@ -73,6 +145,8 @@ async function startSession() {
   try {
     formError.value = null
     if (!validatePre()) return
+    localResponses.value = []
+    finishInfo.value = {}
     await sessionStore.start(testId, { ...pre.value })
     currentSessionId.value = sessionStore.sessionId
     session.value.finished = false
@@ -94,6 +168,7 @@ async function onAnswered(payload: { questionId: number; selectedValue: ChoiceVa
   if (!questionsCount.value) return
 
   isSubmittingAnswer.value = true
+  localResponses.value.push(payload)
   sessionStore.addLocalResponse(payload)
   responsesCount.value++
   if (responsesCount.value < questionsCount.value) {
@@ -115,9 +190,11 @@ async function finishSessionWithStore() {
     currentSessionId.value = sessionStore.sessionId
     session.value.finished = true
     finishInfo.value = {
-      finishedAt: (res as any).finishedAt,
-      score: (res as any).score ?? null,
-      total: (res as any).total ?? null
+      finishedAt: res.finishedAt,
+      score: res.score ?? null,
+      total: res.total ?? null,
+      durationMs: res.durationMs ?? null,
+      items: res.items ?? [],
     }
   } catch (e: any) {
     formError.value = e?.response?.data?.message || e?.message || 'Error finalizando la sesión'
@@ -255,17 +332,49 @@ onMounted(async () => {
       </div>
 
       <!-- Sesión finalizada -->
-      <div v-if="!loading && sessionStore.sessionId && session.finished" class="space-y-3 p-6 bg-white rounded-2xl shadow-xl">
-        <p class="text-green-700 font-semibold text-lg">
-          ¡Sesión finalizada!
-          <span v-if="finishInfo.finishedAt" class="ml-2 text-gray-600 text-sm">
-            ({{ new Date(finishInfo.finishedAt).toLocaleString('es-ES') }})
-          </span>
-        </p>
-        <p class="text-gray-800">Resultado: <strong>{{ finishInfo.score ?? '—' }} / {{ finishInfo.total ?? '—' }}</strong></p>
-        <div class="flex gap-3">
-          <button class="px-4 py-2 rounded-xl shadow bg-indigo-600 text-white hover:bg-indigo-700" @click="downloadPdf">Descargar PDF</button>
-          <button class="px-4 py-2 rounded-xl shadow bg-gray-100" @click="router.push('/')">Volver al inicio</button>
+      <div v-if="!loading && sessionStore.sessionId && session.finished" class="space-y-4 p-6 bg-white rounded-2xl shadow-xl">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p class="text-green-700 font-semibold text-lg">
+              ¡Sesión finalizada!
+              <span v-if="finishInfo.finishedAt" class="ml-2 text-gray-600 text-sm">
+                ({{ new Date(finishInfo.finishedAt).toLocaleString('es-ES') }})
+              </span>
+            </p>
+            <p class="text-gray-700 mt-1">
+              Nota general: <strong>{{ finishInfo.score ?? '—' }} / {{ finishInfo.total ?? '—' }}</strong>
+            </p>
+            <p class="text-gray-700">Tiempo total: <strong>{{ totalTimeLabel }}</strong></p>
+          </div>
+          <div class="flex gap-3">
+            <button class="px-4 py-2 rounded-xl shadow bg-indigo-600 text-white hover:bg-indigo-700" @click="downloadPdf">Descargar PDF</button>
+          </div>
+        </div>
+
+        <hr class="border-0 border-t border-gray-300/80" />
+
+        <div class="space-y-3">
+          <article
+            v-for="row in resultRows"
+            :key="row.id"
+            class="p-4 rounded-xl border border-gray-200 bg-gray-50"
+          >
+            <div class="flex flex-wrap items-start justify-between gap-2">
+              <h3 class="font-semibold text-gray-900">Pregunta {{ row.index }}</h3>
+            </div>
+            <p class="text-gray-700 mt-2">{{ row.prompt }}</p>
+            <div class="mt-3 text-sm space-y-1">
+              <p class="text-gray-700">
+                <span class="text-gray-500">Respuesta del usuario:</span>
+                <span class="font-medium text-gray-900 ml-1">{{ choiceLabel(row.selectedValue) }}</span>
+              </p>
+              <p class="text-gray-700">
+                <span class="text-gray-500">Acierto/Fallo:</span>
+                <span class="font-medium text-gray-900 ml-1">{{ outcomeLabel(row.isCorrect) }}</span>
+                <span class="ml-1">{{ outcomeEmoji(row.isCorrect) }}</span>
+              </p>
+            </div>
+          </article>
         </div>
       </div>
     </div>

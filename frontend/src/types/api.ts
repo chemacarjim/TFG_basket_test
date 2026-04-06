@@ -2,7 +2,20 @@ export interface TestSummary { id: number; title: string; description: string | 
 export interface Question { id: number; prompt: string; possessionTime: number | null; imageUrl: string | null }
 export interface TestDetail extends TestSummary { questions: Question[] }
 export interface CreateSessionResponse { sessionId: number }
-export interface FinishSessionResponse { score: number; total: number; durationMs: number | null }
+export interface FinishSessionItemResponse {
+  questionId: number
+  questionPrompt: string
+  selectedValue: ChoiceValue
+  isCorrect: boolean | null
+  responseTimeMs: number | null
+}
+export interface FinishSessionResponse {
+  score: number
+  total: number
+  durationMs: number | null
+  finishedAt: string
+  items: FinishSessionItemResponse[]
+}
 
 export type ChoiceValue = 'DRIBBLE' | 'PASS' | 'SHOOT'
 export const choiceValues: ChoiceValue[] = ['DRIBBLE', 'PASS', 'SHOOT']

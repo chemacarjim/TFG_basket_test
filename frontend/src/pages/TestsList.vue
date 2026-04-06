@@ -113,6 +113,14 @@ function onStart(id: number) {
 <template>
   <div class="min-h-full bg-gray-900 text-gray-100 px-6 pt-14 pb-10 md:pt-20 md:pb-12">
     <div class="max-w-7xl mx-auto">
+      <div class="flex justify-end mb-4">
+        <button
+          class="px-4 py-2 rounded-xl bg-gray-700 hover:bg-gray-600 text-white"
+          @click="router.push('/')"
+        >
+          Volver al inicio
+        </button>
+      </div>
       <section class="mb-10 text-center">
         <h1 class="text-4xl md:text-5xl font-extrabold text-white">Tests disponibles</h1>
         <p class="mt-3 text-lg text-gray-300">

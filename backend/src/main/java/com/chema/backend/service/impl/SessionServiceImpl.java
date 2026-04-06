@@ -6,6 +6,7 @@ import com.chema.backend.domain.entity.TestEntity;
 import com.chema.backend.domain.entity.TestSession;
 import com.chema.backend.dto.CreateSessionRequestDto;
 import com.chema.backend.dto.CreateSessionResponseDto;
+import com.chema.backend.dto.FinishSessionItemDto;
 import com.chema.backend.dto.FinishSessionResponseDto;
 import com.chema.backend.dto.SubmitResponsesRequestDto;
 import com.chema.backend.exception.BadRequestException;
@@ -99,7 +100,9 @@ public class SessionServiceImpl implements SessionService {
                         "La pregunta " + q.getId() + " no pertenece al test de la sesión.");
             }
 
-            boolean correct = item.selectedValue().equals(q.getCorrectValue());
+            Boolean correct = q.getCorrectValue() == null
+                    ? null
+                    : item.selectedValue().equals(q.getCorrectValue());
 
             ResponseEntity r = ResponseEntity.builder()
                     .session(session)
@@ -122,14 +125,14 @@ public class SessionServiceImpl implements SessionService {
         var now = OffsetDateTime.now();
         s.setFinishedAt(now);
 
-        List<ResponseEntity> responses = responseRepository.findBySession(s);
+        List<ResponseEntity> responses = responseRepository.findBySessionOrderByIdAsc(s);
         int total = responses.size();
         int score = 0;
 
         s.setTotal(total);
 
         for (ResponseEntity r : responses) {
-            if (r.getIsCorrect()) {
+            if (Boolean.TRUE.equals(r.getIsCorrect())) {
                 score++;
             }
         }
@@ -145,6 +148,15 @@ public class SessionServiceImpl implements SessionService {
         sessionRepository.save(s);
 
         String finishedAt = now.toString();
-        return new FinishSessionResponseDto(score, total, s.getDurationMs(), finishedAt);
+        List<FinishSessionItemDto> items = responses.stream()
+                .map(r -> new FinishSessionItemDto(
+                        r.getQuestion().getId(),
+                        r.getQuestion().getPrompt(),
+                        r.getSelectedValue(),
+                        r.getIsCorrect(),
+                        r.getResponseTimeMs()
+                ))
+                .toList();
+        return new FinishSessionResponseDto(score, total, s.getDurationMs(), finishedAt, items);
     }
 }
