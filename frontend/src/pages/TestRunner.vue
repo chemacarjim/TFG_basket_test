@@ -92,6 +92,7 @@ const resultRows = computed(() => {
       index: index + 1,
       prompt: item.questionPrompt || `Pregunta ${index + 1}`,
       selectedValue: item.selectedValue ?? null,
+      correctValue: item.correctValue ?? null,
       isCorrect: item.isCorrect ?? null,
     }))
   }
@@ -105,6 +106,7 @@ const resultRows = computed(() => {
       index: index + 1,
       prompt: q.prompt || `Pregunta ${index + 1}`,
       selectedValue: userResponse?.selectedValue ?? null,
+      correctValue: null,
       isCorrect: null,
     }
   })
@@ -367,6 +369,10 @@ onMounted(async () => {
               <p class="text-gray-700">
                 <span class="text-gray-500">Respuesta del usuario:</span>
                 <span class="font-medium text-gray-900 ml-1">{{ choiceLabel(row.selectedValue) }}</span>
+              </p>
+              <p class="text-gray-700">
+                <span class="text-gray-500">Respuesta correcta:</span>
+                <span class="font-medium text-gray-900 ml-1">{{ choiceLabel(row.correctValue) }}</span>
               </p>
               <p class="text-gray-700">
                 <span class="text-gray-500">Acierto/Fallo:</span>

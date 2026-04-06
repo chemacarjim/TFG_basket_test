@@ -153,6 +153,7 @@ public class SessionServiceImpl implements SessionService {
                         r.getQuestion().getId(),
                         r.getQuestion().getPrompt(),
                         r.getSelectedValue(),
+                        r.getQuestion().getCorrectValue(),
                         r.getIsCorrect(),
                         r.getResponseTimeMs()
                 ))

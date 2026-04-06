@@ -6,6 +6,7 @@ export interface FinishSessionItemResponse {
   questionId: number
   questionPrompt: string
   selectedValue: ChoiceValue
+  correctValue: ChoiceValue | null
   isCorrect: boolean | null
   responseTimeMs: number | null
 }

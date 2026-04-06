@@ -6,6 +6,7 @@ public record FinishSessionItemDto(
         Long questionId,
         String questionPrompt,
         ChoiceValue selectedValue,
+        ChoiceValue correctValue,
         Boolean isCorrect,
         Long responseTimeMs
 ) { }
