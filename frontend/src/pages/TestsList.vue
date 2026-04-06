@@ -42,6 +42,10 @@ function closeStartDialog() {
 
 const searchTerm = ref('')
 
+function isIqTestTitle(title: string | null | undefined) {
+  return (title ?? '').trim().toLowerCase().includes('iq')
+}
+
 const filteredTests = computed(() => {
   const q = searchTerm.value.trim().toLowerCase()
   if (!q) return tests.value
@@ -53,7 +57,8 @@ const detailsVisible = ref(false)
 
 onMounted(async () => {
   try {
-    tests.value = await listActiveTests()
+    const activeTests = await listActiveTests()
+    tests.value = activeTests.filter((test) => !isIqTestTitle(test.title))
   } catch (e: any) {
     error.value = e?.message ?? 'Error cargando tests'
   } finally {

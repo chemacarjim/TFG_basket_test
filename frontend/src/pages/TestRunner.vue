@@ -319,7 +319,7 @@ onMounted(async () => {
       </div>
 
       <!-- Flujo de preguntas -->
-      <div v-if="!loading && sessionStore.sessionId && !session.finished" class="w-[70%] mx-auto space-y-4 p-6 bg-white rounded-2xl shadow-xl">
+      <div v-if="!loading && sessionStore.sessionId && !session.finished" class="w-full lg:w-[70%] mx-auto space-y-4 p-6 bg-white rounded-2xl shadow-xl">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <h2 class="text-xl font-semibold text-gray-900">Sesión #{{ sessionStore.sessionId }}</h2>
           <p class="text-gray-600 font-medium">Pregunta {{ currentIndex + 1 }} de {{ questionsCount }}</p>

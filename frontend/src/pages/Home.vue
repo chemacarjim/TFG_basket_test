@@ -10,13 +10,14 @@ const loading = ref(true)
 const error = ref<string | null>(null)
 const availableTests = ref(0)
 
-// De momento dejamos realizados en 0 hasta definir fuente real en backend/API.
-const completedTests = ref(0)
+function isIqTestTitle(title: string | null | undefined) {
+  return (title ?? '').trim().toLowerCase().includes('iq')
+}
 
 onMounted(async () => {
   try {
     const tests = await listActiveTests()
-    availableTests.value = tests.length
+    availableTests.value = tests.filter((test) => !isIqTestTitle(test.title)).length
   } catch (e: any) {
     error.value = e?.message ?? 'Error cargando tests'
   } finally {
@@ -42,9 +43,8 @@ onMounted(async () => {
         <div v-if="loading" class="text-center text-gray-400">Cargando métricas...</div>
         <div v-else-if="error" class="text-center text-red-400">{{ error }}</div>
 
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 gap-7 max-w-4xl mx-auto">
+        <div v-else class="grid grid-cols-1 gap-7 max-w-xl mx-auto">
           <MetricCard title="Tests disponibles" :value="availableTests" />
-          <MetricCard title="Tests realizados" :value="completedTests" />
         </div>
       </section>
 
