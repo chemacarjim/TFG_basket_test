@@ -10,6 +10,7 @@ const router = useRouter()
 const auth = useAuthStore()
 const loading = ref(true)
 const error = ref<string|null>(null)
+const success = ref<string|null>(null)
 const tests = ref<Array<{id:number; title:string; description:string|null; isActive:boolean}>>([])
 
 const createDialogVisible = ref(false)
@@ -31,6 +32,15 @@ const uploading = ref(false)
 const selectedTestTitle = computed(() => tests.value.find(t => t.id === selectedTestId.value)?.title ?? '')
 const selectedTestDescription = computed(() => tests.value.find(t => t.id === selectedTestId.value)?.description ?? '')
 const selectedTest = computed(() => tests.value.find(t => t.id === selectedTestId.value) ?? null)
+let successTimer: ReturnType<typeof setTimeout> | null = null
+
+function showSuccess(message: string) {
+  success.value = message
+  if (successTimer) clearTimeout(successTimer)
+  successTimer = setTimeout(() => {
+    success.value = null
+  }, 3000)
+}
 
 onMounted(async () => {
   auth.restoreFromStorage()
@@ -72,6 +82,8 @@ async function createTest() {
     })
     createForm.value = { title:'', description:'', isActive:false }
     createDialogVisible.value = false
+    error.value = null
+    showSuccess('Test creado correctamente.')
     await load()
   } catch (e:any) {
     const msg = e?.response?.data?.message || e?.message || 'Error creando test'
@@ -100,6 +112,8 @@ async function saveTestEdit() {
     })
     editDialogVisible.value = false
     editingTestId.value = null
+    error.value = null
+    showSuccess('Test actualizado correctamente.')
     await load()
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'No se pudo guardar el test'
@@ -114,6 +128,8 @@ function logout() {
 async function toggleActive(t:any) {
   try {
     await adminUpdateTest(t.id, { isActive: !t.isActive })
+    error.value = null
+    showSuccess(`Test ${t.isActive ? 'desactivado' : 'activado'} correctamente.`)
     await load()
   } catch (e:any) {
     const msg = e?.response?.data?.message || e?.message || 'No se pudo actualizar el test'
@@ -123,28 +139,50 @@ async function toggleActive(t:any) {
 }
 
 async function removeTest(t:any) {
-  await adminDeleteTest(t.id)
-  if (selectedTestId.value === t.id) { selectedTestId.value = null; questions.value = [] }
-  await load()
+  try {
+    await adminDeleteTest(t.id)
+    if (selectedTestId.value === t.id) { selectedTestId.value = null; questions.value = [] }
+    error.value = null
+    showSuccess('Test eliminado correctamente.')
+    await load()
+  } catch (e:any) {
+    error.value = e?.response?.data?.message || e?.message || 'No se pudo eliminar el test'
+  }
 }
 
 async function selectTest(id:number) {
-  selectedTestId.value = id
-  questions.value = await adminListQuestions(id)
-  questionsDialogVisible.value = true
+  try {
+    selectedTestId.value = id
+    questions.value = await adminListQuestions(id)
+    questionsDialogVisible.value = true
+  } catch (e:any) {
+    error.value = e?.response?.data?.message || e?.message || 'No se pudieron cargar las preguntas'
+  }
 }
 
 async function createQuestion() {
   if (!selectedTestId.value) return
-  await adminCreateQuestion(selectedTestId.value, { ...qform.value, correctValue:qform.value.correctValue as ChoiceValue })
-  qform.value = { prompt:'', possessionTime:0, imageUrl:qform.value.imageUrl, correctValue:choiceValues[0] }
-  await selectTest(selectedTestId.value)
+  try {
+    await adminCreateQuestion(selectedTestId.value, { ...qform.value, correctValue:qform.value.correctValue as ChoiceValue })
+    qform.value = { prompt:'', possessionTime:0, imageUrl:qform.value.imageUrl, correctValue:choiceValues[0] }
+    error.value = null
+    showSuccess('Pregunta creada correctamente.')
+    await selectTest(selectedTestId.value)
+  } catch (e:any) {
+    error.value = e?.response?.data?.message || e?.message || 'No se pudo crear la pregunta'
+  }
 }
 
 async function removeQuestion(q:any) {
   if (!selectedTestId.value) return
-  await adminDeleteQuestion(selectedTestId.value, q.id)
-  await selectTest(selectedTestId.value)
+  try {
+    await adminDeleteQuestion(selectedTestId.value, q.id)
+    error.value = null
+    showSuccess('Pregunta eliminada correctamente.')
+    await selectTest(selectedTestId.value)
+  } catch (e:any) {
+    error.value = e?.response?.data?.message || e?.message || 'No se pudo eliminar la pregunta'
+  }
 }
 
 async function saveQuestionCorrectValue(q:any) {
@@ -153,6 +191,8 @@ async function saveQuestionCorrectValue(q:any) {
     await adminUpdateQuestion(selectedTestId.value, q.id, {
       correctValue: q.correctValue as ChoiceValue,
     })
+    error.value = null
+    showSuccess('Respuesta correcta actualizada.')
     await selectTest(selectedTestId.value)
   } catch (e:any) {
     error.value = e?.response?.data?.message || e?.message || 'No se pudo actualizar la respuesta correcta'
@@ -166,8 +206,10 @@ async function onUpload(e: Event) {
   try {
     const url = await adminUploadImage(input.files[0])
     qform.value.imageUrl = url
+    error.value = null
+    showSuccess('Imagen subida correctamente.')
   } catch (e: any) {
-    alert(e?.response?.data?.message || 'Error subiendo imagen')
+    error.value = e?.response?.data?.message || e?.message || 'Error subiendo imagen'
   } finally {
     uploading.value = false
   }
@@ -233,6 +275,7 @@ async function onUpload(e: Event) {
 
         <div v-if="loading" class="text-gray-600">Cargando…</div>
         <div v-else-if="error" class="text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">{{ error }}</div>
+        <div v-if="success" class="text-green-700 bg-green-50 border border-green-200 rounded-xl p-3">{{ success }}</div>
 
         <section v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <article

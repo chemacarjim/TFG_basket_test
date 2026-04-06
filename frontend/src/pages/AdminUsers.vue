@@ -11,6 +11,7 @@ const auth = useAuthStore()
 
 const loading = ref(true)
 const error = ref<string | null>(null)
+const success = ref<string | null>(null)
 const users = ref<AdminUser[]>([])
 
 const createDialogVisible = ref(false)
@@ -21,6 +22,15 @@ const editDialogRef = ref<HTMLDialogElement | null>(null)
 const createForm = ref({ email: '', password: '', isSuperAdmin: false })
 const editForm = ref({ email: '', password: '', isSuperAdmin: false })
 const editingUserId = ref<number | null>(null)
+let successTimer: ReturnType<typeof setTimeout> | null = null
+
+function showSuccess(message: string) {
+  success.value = message
+  if (successTimer) clearTimeout(successTimer)
+  successTimer = setTimeout(() => {
+    success.value = null
+  }, 3000)
+}
 
 onMounted(async () => {
   auth.restoreFromStorage()
@@ -75,6 +85,8 @@ async function createUser() {
     })
     createForm.value = { email: '', password: '', isSuperAdmin: false }
     createDialogVisible.value = false
+    error.value = null
+    showSuccess('Usuario creado correctamente.')
     await load()
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'Error al crear usuario'
@@ -91,6 +103,8 @@ async function saveUserEdit() {
     })
     editDialogVisible.value = false
     editingUserId.value = null
+    error.value = null
+    showSuccess('Usuario actualizado correctamente.')
     await load()
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'Error al guardar'
@@ -101,6 +115,8 @@ async function deleteUser(u: AdminUser) {
   if (!confirm(`¿Eliminar al administrador ${u.email}?`)) return
   try {
     await adminDeleteUser(u.id)
+    error.value = null
+    showSuccess('Usuario eliminado correctamente.')
     await load()
   } catch (e: any) {
     error.value = e?.response?.data?.message || e?.message || 'Error al eliminar'
@@ -173,6 +189,7 @@ function logout() {
 
         <div v-if="loading" class="text-gray-600">Cargando…</div>
         <div v-else-if="error" class="text-red-600 bg-red-50 border border-red-200 rounded-xl p-3">{{ error }}</div>
+        <div v-if="success" class="text-green-700 bg-green-50 border border-green-200 rounded-xl p-3">{{ success }}</div>
 
         <section v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <article
