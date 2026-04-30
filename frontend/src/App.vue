@@ -1,26 +1,27 @@
 <script setup lang="ts">
-import { RouterView, RouterLink } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
+
+const route = useRoute()
 </script>
 
 <template>
   <div class="min-h-screen flex flex-col bg-gray-100 text-gray-900">
-    <!-- Header -->
-    <header class="bg-white shadow-md">
-      <nav class="max-w-6xl mx-auto flex items-center justify-between px-6 py-4">
-        <RouterLink to="/" class="text-xl font-bold hover:text-blue-600 transition-colors">
-          Plataforma de test de baloncesto
-        </RouterLink>
-
-        <div class="flex gap-4">
-          <RouterLink to="/" class="hover:underline">Inicio</RouterLink>
-          <RouterLink to="/admin/login" class="hover:underline">Administrar</RouterLink>
-        </div>
-      </nav>
-    </header>
-
     <!-- Contenido -->
-    <main class="flex-1">
-      <RouterView />
+    <main
+      class="flex-1"
+      :class="route.path === '/' || route.path === '/tests' || route.path.startsWith('/test/')
+        ? 'bg-gray-900'
+        : route.path === '/admin/login'
+          ? 'bg-gradient-to-br from-blue-50 to-indigo-100'
+          : route.path.startsWith('/admin/')
+            ? 'bg-gray-50'
+          : ''"
+    >
+      <RouterView v-slot="{ Component, route: currentRoute }">
+        <transition name="page">
+          <component :is="Component" :key="currentRoute.fullPath" />
+        </transition>
+      </RouterView>
     </main>
 
     <!-- Footer -->
@@ -34,5 +35,20 @@ import { RouterView, RouterLink } from 'vue-router'
 html, body {
   margin: 0;
   padding: 0;
+}
+
+.page-enter-active,
+.page-leave-active {
+  transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
 }
 </style>

@@ -1,6 +1,7 @@
 package com.chema.backend.service;
 
 import com.chema.backend.dto.TestDetailDto;
+import com.chema.backend.dto.PublicAverageScoreDto;
 import com.chema.backend.dto.TestSummaryDto;
 
 import java.util.List;
@@ -8,4 +9,5 @@ import java.util.List;
 public interface TestQueryService {
     List<TestSummaryDto> listActiveTests();
     TestDetailDto getTestDetail(Long testId);
+    PublicAverageScoreDto getPublicAverageScore();
 }

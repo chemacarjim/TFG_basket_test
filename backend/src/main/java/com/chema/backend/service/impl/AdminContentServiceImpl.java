@@ -2,6 +2,7 @@ package com.chema.backend.service.impl;
 
 import com.chema.backend.domain.entity.*;
 import com.chema.backend.dto.admin.*;
+import com.chema.backend.exception.BadRequestException;
 import com.chema.backend.exception.NotFoundException;
 import com.chema.backend.repository.TestSessionRepository;
 import com.chema.backend.repository.*;
@@ -79,6 +80,9 @@ public class AdminContentServiceImpl implements AdminContentService {
     public QuestionAdminDto createQuestion(Long testId, QuestionUpsertDto dto) {
         TestEntity t = testRepo.findById(testId)
                 .orElseThrow(() -> new NotFoundException("TEST_NOT_FOUND", "No existe test id=" + testId));
+        if (dto.correctValue() == null) {
+            throw new BadRequestException("VALIDATION_ERROR", "La pregunta debe incluir una respuesta correcta.");
+        }
         Question q = Question.builder()
                 .test(t)
                 .prompt(dto.prompt())

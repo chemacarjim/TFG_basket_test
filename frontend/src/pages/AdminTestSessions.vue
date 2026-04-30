@@ -33,8 +33,13 @@ async function downloadPdf(sid:number) {
   try{
     const blob = await adminDownloadSessionReport(testId, sid)
     const url = window.URL.createObjectURL(blob)
-    window.open(url, '_blank')
-    setTimeout(() => URL.revokeObjectURL(url), 5000)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `session-${sid}-report.pdf`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    setTimeout(() => URL.revokeObjectURL(url), 1000)
   } catch (e:any) {
     alert(e?.response?.data?.message || 'Error descargando PDF')
   }
@@ -52,34 +57,36 @@ onMounted(loadMore)
 
     <div v-if="error" class="text-red-600">{{ error }}</div>
 
-    <table class="w-full bg-white rounded-xl shadow">
-      <thead>
-        <tr class="text-left">
-          <th class="p-2">Nombre</th>
-          <th class="p-2">Apellidos</th>
-          <th class="p-2">Fecha realización</th>
-          <th class="p-2">Score</th>
-          <th class="p-2">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="it in items" :key="it.sessionId" class="border-t">
-          <td class="p-2">{{ it.name }}</td>
-          <td class="p-2">{{ it.surname }}</td>
-          <td class="p-2">
-            <span v-if="it.finishedAt">{{ new Date(it.finishedAt).toLocaleString('es-ES') }}</span>
-            <span v-else>—</span>
-          </td>
-          <td class="p-2">{{ it.score ?? '—' }} / {{ it.total ?? '—' }}</td>
-          <td class="p-2">
-            <button class="px-3 py-1 rounded shadow" @click="downloadPdf(it.sessionId)">Descargar PDF</button>
-          </td>
-        </tr>
-        <tr v-if="!items.length && !loading">
-          <td class="p-2 text-center text-gray-500" colspan="5">No hay sesiones finalizadas</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="overflow-x-auto rounded-xl shadow bg-white">
+      <table class="w-full min-w-[720px]">
+        <thead>
+          <tr class="text-left">
+            <th class="p-2">Nombre</th>
+            <th class="p-2">Apellidos</th>
+            <th class="p-2">Fecha realización</th>
+            <th class="p-2">Score</th>
+            <th class="p-2">Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="it in items" :key="it.sessionId" class="border-t">
+            <td class="p-2">{{ it.name }}</td>
+            <td class="p-2">{{ it.surname }}</td>
+            <td class="p-2">
+              <span v-if="it.finishedAt">{{ new Date(it.finishedAt).toLocaleString('es-ES') }}</span>
+              <span v-else>—</span>
+            </td>
+            <td class="p-2">{{ it.score ?? '—' }} / {{ it.total ?? '—' }}</td>
+            <td class="p-2">
+              <button class="px-3 py-1 rounded shadow" @click="downloadPdf(it.sessionId)">Descargar PDF</button>
+            </td>
+          </tr>
+          <tr v-if="!items.length && !loading">
+            <td class="p-2 text-center text-gray-500" colspan="5">No hay sesiones finalizadas</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="flex justify-center">
       <button v-if="hasMore" class="px-4 py-2 rounded-xl shadow" @click="loadMore">

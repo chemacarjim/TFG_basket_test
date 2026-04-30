@@ -30,4 +30,15 @@ public interface TestSessionRepository extends JpaRepository<TestSession, Long> 
     List<TestSession> findFinishedByTestIdPaged(@Param("testId") Long testId, 
                                                 @Param("limit") int limit, 
                                                 @Param("offset") int offset);
+
+    @Query(value = """
+            select coalesce(avg((100.0 * s.score)::double precision / nullif(s.total, 0)), 0)
+            from test_session s
+            where s.finished_at is not null
+              and s.score is not null
+              and s.total is not null
+              and s.total > 0
+            """,
+            nativeQuery = true)
+    Double findAverageScorePercent();
 }

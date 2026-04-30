@@ -72,7 +72,7 @@ public class ReportServiceImpl implements ReportService {
             table.setWidthPercentage(100);
             table.setSpacingBefore(10);
             table.addCell(new Phrase("Pregunta", bold));
-            table.addCell(new Phrase("Tiempo (ms)", bold));
+            table.addCell(new Phrase("Tiempo (MM:SS:XXXX)", bold));
             table.addCell(new Phrase("Correcta", bold));
 
             if (s.getResponses() != null && !s.getResponses().isEmpty()) {
@@ -84,7 +84,7 @@ public class ReportServiceImpl implements ReportService {
                     String ok = Boolean.TRUE.equals(r.getIsCorrect()) ? "Acertada" : "Fallada";
 
                     table.addCell(new Phrase(q, normal));
-                    table.addCell(new Phrase(ms != null ? ms.toString() : "—", normal));
+                    table.addCell(new Phrase(ms != null ? formatElapsed(ms) : "—", normal));
                     table.addCell(new Phrase(ok, normal));
                 }
             } else {
@@ -120,4 +120,12 @@ public class ReportServiceImpl implements ReportService {
 
     private static String nvl(String v, String def) { return (v == null || v.isBlank()) ? def : v; }
     private static String sanitize(String s) { return s.replaceAll("[^A-Za-z0-9_-]", ""); }
+
+    private static String formatElapsed(Long ms) {
+        long safeMs = Math.max(0L, ms != null ? ms : 0L);
+        long minutes = safeMs / 60000L;
+        long seconds = (safeMs % 60000L) / 1000L;
+        long millis = safeMs % 1000L;
+        return String.format("%02d:%02d:%04d", minutes, seconds, millis);
+    }
 }
